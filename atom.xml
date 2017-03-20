@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://liuguochao.github.io/"/>
-  <updated>2017-03-20T09:35:58.306Z</updated>
+  <updated>2017-03-20T11:28:28.646Z</updated>
   <id>http://liuguochao.github.io/</id>
   
   <author>
@@ -16,43 +16,26 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>helloMyBlog</title>
+    <title>Hello My Blog</title>
     <link href="http://liuguochao.github.io/2017/03/20/helloMyBlog/"/>
     <id>http://liuguochao.github.io/2017/03/20/helloMyBlog/</id>
     <published>2017-03-20T09:35:58.000Z</published>
-    <updated>2017-03-20T09:35:58.306Z</updated>
+    <updated>2017-03-20T11:28:28.646Z</updated>
     
-    <summary type="html">
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://liuguochao.github.io/2017/03/20/hello-world/"/>
-    <id>http://liuguochao.github.io/2017/03/20/hello-world/</id>
-    <published>2017-03-20T09:06:27.098Z</published>
-    <updated>2017-03-20T09:06:27.098Z</updated>
-    
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+    <content type="html"><![CDATA[<p>今天搭建了我的博客。</p>
+<p>其实很久之前，舍友就推荐我搭建个自己的博客，说是很好玩，博客的主题也都很fashion，但是都忘记了。现在，研究生也都读了一半了，想想自己学习的东西大都糊里糊涂地记在脑海里，没有形成系统，这样在整理自己的知识网络的过程中，难免会有所遗漏。</p>
+<p>因此，今天费了一下午的时间，按照这个教程<a href="http://blog.csdn.net/jzooo/article/details/46781805，就搭建了自己的一个博客，希望以后没事的时候，可以在此地，记录一下平淡生活中的一些值得再看的东西。" target="_blank" rel="external">http://blog.csdn.net/jzooo/article/details/46781805，就搭建了自己的一个博客，希望以后没事的时候，可以在此地，记录一下平淡生活中的一些值得再看的东西。</a></p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+      &lt;p&gt;今天搭建了我的博客。&lt;/p&gt;
+&lt;p&gt;其实很久之前，舍友就推荐我搭建个自己的博客，说是很好玩，博客的主题也都很fashion，但是都忘记了。现在，研究生也都读了一半了，想想自己学习的东西大都糊里糊涂地记在脑海里，没有形成系统，这样在整理自己的知识网络的过程中，难免会有所遗漏。
     
     </summary>
     
+    
+      <category term="碎碎念" scheme="http://liuguochao.github.io/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/"/>
     
   </entry>
   
