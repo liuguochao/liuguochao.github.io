@@ -1,110 +1,183 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title>  · ��������������</title><meta name="description" content=" - Moore"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://liuguochao.github.io/atom.xml" title="��������������"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/liuguochao" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title"></h1><div class="post-info">2017年3月20日</div><div class="post-content"><h3 id="数据库面试题"><a href="#数据库面试题" class="headerlink" title="数据库面试题"></a>数据库面试题</h3><ol>
-<li><h4 id="连接的种类"><a href="#连接的种类" class="headerlink" title="连接的种类"></a>连接的种类</h4><p>(1)  内连接</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">##内连接仅选出两张表相互匹配的记录，关键字为[inner] join，可以</div><div class="line">##如从employ,dept表中选取出每位雇员的名字和其对应的部门名称</div><div class="line">select employ_name,depart_name from employ,dept where employ.dept_id=dept.dept_id;(引用两个表的方式)</div><div class="line">##或者</div><div class="line">select employ.employ_name,dept.depart_name from employ [inner] join dept on employ.dept_id=dept.dept_id;</div></pre></td></tr></table></figure>
-<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |</p>
-<p>(2)  外连接</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">##外连接分为左连接、右连接、全连接</div><div class="line">##其中LEFT JOIN 关键字会从左表 (table_name1) 那里返回所有的行，即使在右表 (table_name2) 中没有匹配的行。</div><div class="line">##RIGHT JOIN 关键字会右表 (table_name2) 那里返回所有的行，即使在左表 (table_name1) 中没有匹配的行。</div><div class="line">##而FULL JOIN ，只要其中某个表存在匹配，关键字就会返回行。</div></pre></td></tr></table></figure>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">##如使用left join</div><div class="line">select employ.employ_name,dept.depart_name from employ left join dept on employ.dept_id=dept.dept_id; </div><div class="line">##注意此时的左表指的是employ，因为employ.dept_id=dept.dept_id中，employ表格在等号左边</div></pre></td></tr></table></figure>
-<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |<br>| dony        |             |</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">##如果使用right join</div><div class="line">select employ.employ_name,dept.depart_name from employ right join dept on employ.dept_id=depart.dept_id; </div><div class="line">##注意，此时的右表是depart，因为depart表格在等号右边，如果此时写为：</div><div class="line">select employ.employ_name,dept.depart_name from employ right join dept on depart.dept_id=employ.dept_id; </div><div class="line">##则此时得到的结果和left join应该是一致的，即left join和right join可以相互转化</div></pre></td></tr></table></figure>
-<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |<br>|             | sale        |</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">##如果使用full join</div><div class="line">select employ.employ_name,dept.depart_name from employ full join dept on employ.dept_id=depart.dept_id;</div></pre></td></tr></table></figure>
-<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |<br>| dony        |             |<br>|             | sale        |</p>
-</li>
-<li><h4 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h4><p>数据库索引，是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据。索引的实现通常使用<strong>B树及其变种B+树</strong>.</p>
-<p><img src="H:\面试准备\BTREE.png" alt="BTREE"></p>
-<p><strong>所有mysql类类型都可以被索引，对相关列使用索引是提高</strong>select<strong>操作性能的最佳途径</strong>。mysql默认的InnoDB和MyISAM存储引擎创建的索引均是BTREE索引，Memory存储引擎默认使用的是Hash索引，但也支持BTREE索引。</p>
-<h5 id="创建索引的语法为："><a href="#创建索引的语法为：" class="headerlink" title="创建索引的语法为："></a>创建索引的语法为：</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> [<span class="keyword">unique</span>|fulltext|spatial] <span class="keyword">index</span> index_name [<span class="keyword">using</span> index_type] <span class="keyword">on</span> table_name(index_col_name,...);</div><div class="line">index_col_name:col_name[(length)][asc|desc]</div><div class="line">也可以用：</div><div class="line"><span class="keyword">alter</span> table_name <span class="keyword">add</span> <span class="keyword">index</span> indexname <span class="keyword">on</span> (index_col_name,...);</div></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">如要为city表的city_name字段创建10个字节的前缀索引，代码如下：</div><div class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_city_name <span class="keyword">on</span> city(city(<span class="number">10</span>));</div><div class="line">如果以city_name为条件进行查询：<span class="keyword">select</span> * <span class="keyword">from</span> city <span class="keyword">where</span> city=<span class="string">'hangzhou'</span>;</div><div class="line">此时，查询该记录所用的方式为索引查询，可以利用<span class="keyword">explain</span>关键字来得到执行该条<span class="keyword">select</span>语句的详细信息：</div></pre></td></tr></table></figure>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">explain select * from city where city='hangzhou';</div><div class="line">************************************************</div><div class="line">             id: 1</div><div class="line">    select_type: SIMPLE</div><div class="line">          table: city</div><div class="line">           type: ref</div><div class="line">  possible_keys: idx_city_name ##可能使用到的索引</div><div class="line">            key: idx_city_name ##实际使用到的索引</div><div class="line">            ref:const</div><div class="line">           rows:1</div><div class="line">          Extra: Using where</div><div class="line">       1 rows in set(0.00 sec)</div></pre></td></tr></table></figure>
-<h5 id="删除索引的语法为："><a href="#删除索引的语法为：" class="headerlink" title="删除索引的语法为："></a>删除索引的语法为：</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">drop</span> <span class="keyword">index</span> idx_city_name <span class="keyword">on</span> city;</div></pre></td></tr></table></figure>
-<h5 id="设计索引的原则"><a href="#设计索引的原则" class="headerlink" title="设计索引的原则"></a>设计索引的原则</h5><ul>
-<li>最适合创建索引的列是经常出现在<strong>where</strong>子句中的列，连接子句中指定的列，经常需要排序的列（因为索引建立的时候已经是有序的了），而不是经常出现在<strong>select</strong>关键字后的选择列表中的列。</li>
-<li>索引尽量具有唯一性。因为索引的实现是BTREE，如果索引不能很准确的标记某一记录，那么在对该索引所代表的列进行检索时，就不能很好的利用BTREE进行快速的查找。如，对能够唯一标记学生的学号属性建立索引，建立完成后的BTREE比较良好，可以在log(n)内查找完毕，但如果对学生的性别属性建立索引，建立完成后的索引则没有多大用处，因为不管搜索哪个值，都会得出大概一半的行，想要查找某个学生，还必须在一半的学生内继续回表逐个比对，效率肯定就会低下了。（主键本身就是按照索引的形式存储的）</li>
-<li>索引尽量短小。如，对字符串列创建索引，应该制定一个前缀长度，只要有可能就应该尽量这么做。因为较小的索引占用的存储空间较少，比较起来更快，而且涉及到的磁盘IO比较少，内存中可以容纳更多的索引键值，这样就可以一次查询更多的记录。例如：对一个char(200)的列建立索引，如果该列的前10个字符就可以大致唯一的标识出该行记录，那么就应该取前10个字符创立前缀索引，而不是对整个列建立索引。相应的，如果该列存储的是一些图片或者视频，也应该创建前缀索引，这样不仅查询更快，而且可以支持模糊查询</li>
-<li>不要过度建立索引。为表设置索引要付出代价的：一是增加了数据库的存储空间，二是在插入和修改数据时要花费较多的时间(因为索引也要随之计算并更新)。而且较多的索引，会使得mysql在查询的时候不知道哪个索引是最优的，因此应该只保留最必须的索引。</li>
-</ul>
-<h5 id="BTREE索引和HASH索引"><a href="#BTREE索引和HASH索引" class="headerlink" title="BTREE索引和HASH索引"></a>BTREE索引和HASH索引</h5><ul>
-<li>HASH索引只能用于=或者&lt;=&gt;操作符的比较，对于其他操作符不能加速其查询过程（可以从HASH的原理很容易得知原因），而BTREE索引不仅支持=、&lt;=&gt;，也支持&gt;,&lt;,&gt;=,&lt;=,BETWEEN,LIKE等操作符，即支持范围查询</li>
-<li>mysql优化器不能使用HASH索引来加速ORDER BY操作</li>
-<li>HASH索引只能搜索某一行，查询效率接近于O(1)，比BTREE索引的查询效率要高，因此如果表格数据量不大，可以使用MEMORY存储引擎进行HASH索引的查询</li>
-</ul>
-<h5 id="索引的种类及其创建方法"><a href="#索引的种类及其创建方法" class="headerlink" title="索引的种类及其创建方法"></a>索引的种类及其创建方法</h5><ul>
-<li><p>普通索引</p>
-<p>参考上面创建索引的介绍语句</p>
-</li>
-<li><p>唯一索引</p>
-<p>索引列的值必须唯一，但允许有空值。如果是组合索引，则列值的组合必须唯一，即该索引的每一个节点能够精确地表示某一行</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">unique</span> <span class="keyword">index</span> indexName <span class="keyword">on</span> table_name(colname(<span class="keyword">length</span>)) ;</div><div class="line">或者</div><div class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">add</span> <span class="keyword">index</span> index_name <span class="keyword">on</span> (colname(<span class="keyword">length</span>));</div><div class="line">或者</div><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_name(colname1 <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,colname2 <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span>,...,<span class="keyword">unique</span> <span class="keyword">index</span> index_name (colname(<span class="keyword">length</span>)));</div></pre></td></tr></table></figure>
-</li>
-<li><p>主键索引</p>
-<p>它是一种特殊的唯一索引，不允许有空值。一般是在建表的时候同时创建主键索引 ，即主键，主键本身就是一种索引，如果使用InnoDB存储引擎，mysql中的数据是按照主键的顺序来排列存储的，如果没有主键，mysql会根据唯一索引排列存储，如果还没有唯一索引，mysql会根据列自动生成一个内部列，按照这个内部列的顺序排列存储。按照内部列或者主键的访问是最快的，因此应该为每个表格创建一个主键，且主键要选择尽可能短的数据类型，提高索引的缓存查询效果。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_name (colname1 <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,colname2 <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span>,...,primary <span class="keyword">key</span>(colname1));</div></pre></td></tr></table></figure>
-</li>
-<li><p>组合索引</p>
-<p>为了形象地对比单列索引和组合索引，为表添加多个字段：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mytable(   <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,    username <span class="built_in">VARCHAR</span>(<span class="number">16</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,   city <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,   age <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  );</div></pre></td></tr></table></figure>
-<p>为了进一步榨取MySQL的效率，就要考虑建立组合索引。就是将 username, city, age建到一个索引里：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> mytable <span class="keyword">ADD</span> <span class="keyword">INDEX</span> name_city_age (username(<span class="number">10</span>),city,age);</div></pre></td></tr></table></figure>
-<p>如果分别在 usernname，city，age上建立单列索引，让该表有3个单列索引，查询时和上述的组合索引效率也会大不一样，远远低于我们的组合索引。虽然此时有了三个索引，但MySQL只能用到其中的那个它认为似乎是最有效率的单列索引。</p>
-<p>建立这样的组合索引，其实是相当于分别建立了下面三组组合索引：</p>
-<p><strong>(usernname,city,age),   (usernname,city),   usernname</strong></p>
-<p>为什么没有 city，age这样的组合索引呢？这是因为MySQL组合索引“最左前缀”的结果。简单的理解就是只从最左面的开始组合,并不是只要包含这三列的查询都会用到该组合索引.</p>
-<p>下面的几个SQL就会用到这个组合索引：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE username=<span class="string">"admin"</span> <span class="keyword">AND</span> city=<span class="string">"郑州"</span>  <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE username=<span class="string">"admin"</span> ;</div></pre></td></tr></table></figure>
-<p>而下面几个则不会用到：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE age=<span class="number">20</span> <span class="keyword">AND</span> city=<span class="string">"郑州"</span>  <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE city=<span class="string">"郑州"</span>;</div></pre></td></tr></table></figure>
-<p>虽然组合索引的查询效率要比单个的列建立的索引效果要好，但是其存储成本和维护成本也比单个的索引成本要高。</p>
-</li>
-</ul>
-<h4 id="使用索引，基本上可以解决数据库95-以上的性能问题"><a href="#使用索引，基本上可以解决数据库95-以上的性能问题" class="headerlink" title="使用索引，基本上可以解决数据库95%以上的性能问题"></a>使用索引，基本上可以解决数据库95%以上的性能问题</h4></li>
-<li><h4 id="数据库优化步骤"><a href="#数据库优化步骤" class="headerlink" title="数据库优化步骤"></a>数据库优化步骤</h4><h5 id="1：SQL语句优化"><a href="#1：SQL语句优化" class="headerlink" title="1：SQL语句优化"></a>1：SQL语句优化</h5><ol>
-<li><p>通过<strong>show status</strong>命令查询各种SQL的执行频率</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'com_%'</span>;</div></pre></td></tr></table></figure>
-<p>可以得到mysql中所有语句的执行次数，我们通常比较关心的是一下几个统计参数：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Com_select:执行select操作的次数，一次查询累加1</div><div class="line">Com_insert:执行insert操作的次数，对于批量插入的insert，也只累加一次</div><div class="line">Com_update:执行update的次数</div><div class="line">Com_delete:执行delete的次数</div><div class="line">Com_commit:事务提交的次数</div><div class="line">Com_rollback:事务回滚的次数</div></pre></td></tr></table></figure>
-<p>通过这个命令可以得知，当前数据库是以插入更新为主还是以查询为主，从而确定在哪些方面进行优化。</p>
-<p>对于应用事务的数据库，还要看事务提交的次数和回滚的次数，如果回滚次数非常多，证明后台业务逻辑代码出现了问题，需要通知后台编程人员</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'slow_queries'</span>;</div></pre></td></tr></table></figure>
-<p>通过这个语句可以得知，数据库遭遇慢查询的次数，如果次数特别多，证明数据库需要优化。</p>
-</li>
-<li><p>定位执行效率较低的SQL语句</p>
-<p>通过查询慢查询日志可以定位那些执行效率比较低的SQL语句。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">首先通过以下语句查看数据库是否开启了慢查询日志记录：</div><div class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span><span class="string">'%query%'</span>;</div></pre></td></tr></table></figure>
-<p><img src="H:\面试准备\slow.png" alt="slow"></p>
-<p>其中long_query_time=10，指的是查询时间超过10s的就会被记录到slow_query_log中，该值可以修改。</p>
-<p>从图中可以得知，slow_query_log未开启，开启方法为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">在my.ini末尾加入</div><div class="line">slow_query_log = 1</div><div class="line">long_query_time = 4</div><div class="line">重启mysql服务即可开启</div><div class="line">如果需要把没有索引的sql语句也写入到日志中，设置</div><div class="line">log_queries_not_using_indexes  =1 </div><div class="line">开启后，就会在上图slow_query_log_file的位置生成一个lgc-slow.txt的日志文件，其中lgc为mysql_master的名字。</div></pre></td></tr></table></figure>
-<p>这样，查看慢查询日志就可以定位到执行效率比较差的sql语句</p>
-</li>
-<li><p>通过<strong>explain, show profile</strong>命令分析低效SQL语句低效的原因</p>
-<p>从1，2得到执行效率比较差的sql语句之后，就需要分析为什么执行效率比较差，是没有建立索引，还是索引无法使用。此时就需要分析该条语句的执行过程</p>
-<p>如想要统计某个email为XXX的用户为租赁电影拷贝所支付的总金额，需要关联客户表customer和付款表payment，并且对付款金额amount字段进行sum求和操作，相应的sql语句分析如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">explain select sum(amount) from payment p,customer c where c.customer_id=p.customer_id and email='xxxx@sb.com';</div><div class="line">************************************************</div><div class="line">             id: 1</div><div class="line">    select_type: SIMPLE</div><div class="line">          table: p</div><div class="line">           type: ref</div><div class="line">  possible_keys: idx_fk_customer_id </div><div class="line">            key: idx_fk_customer_id</div><div class="line">		key_len: 2</div><div class="line">            ref: sakila.c.customer_id</div><div class="line">           rows: 12</div><div class="line">          Extra: </div><div class="line">************************************************</div><div class="line">             id: 1</div><div class="line">    select_type: SIMPLE</div><div class="line">          table: c</div><div class="line">           type: ALL</div><div class="line">  possible_keys: PRIMARY</div><div class="line">            key: NULL</div><div class="line">		key_len: NULL</div><div class="line">            ref: NULL</div><div class="line">           rows: 583</div><div class="line">          Extra: Using where</div><div class="line">       2 rows in set(0.00 sec)</div></pre></td></tr></table></figure>
-<p>其中：</p>
-<p>select_type：表示select的类型，常见的取值为SIMPLE（简单表查询，即不适用表连接或者子查询），PRIMARY（主查询），UNION、SUBQUERY等</p>
-<p>table：输出结果的表</p>
-<p>type：表示mysql在表中找到所需行的方式，即访问类型</p>
-<p>| type          | 意义                    |<br>| ————- | ——————— |<br>| ALL           | 全表扫描                  |<br>| index         | 索引全扫描                 |<br>| range         | 索引范围扫描                |<br>| ref           | 使用非唯一索引或唯一索引的前缀扫描     |<br>| eq_ref        | 使用唯一索引扫描              |<br>| const, system | 使用主键或者唯一索引进行扫描，最快速的扫描 |<br>| NULL          | 不用访问表或者索引就可以得到结果      |</p>
-<p>possible_keys：表示查询时可能使用到的索引</p>
-<p>key：实际使用的索引</p>
-<p>key_len；使用索引的字段的长度</p>
-<p>rows：扫描行的数量</p>
-<p>Extra：执行情况的说明和描述，是判断sql语句执行速度的重要额外信息</p>
-<p>从explain的结果可以得知，对于表customer的扫描是全表扫描，且没有使用索引，导致查询的效率不好，所以应该对customer的customer_id字段建立索引，这样再次执行该条语句，就会有比较大的性能提升。</p>
-<p>如果通过explain不能得到比较好的分析结果，可以在利用show profile关键字，对该条语句执行的每个状态做分析，分析出是哪一块出了问题。如在payment表上做一个count(*)查询：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">set profiling=1;#profile默认是关闭的，现在打开</div><div class="line">mysql&gt; select count(amount) from payment;</div><div class="line">+---------------+</div><div class="line">| count(amount) |</div><div class="line">+---------------+</div><div class="line">|         16049 |</div><div class="line">+---------------+</div><div class="line">1 row in set</div><div class="line"></div><div class="line">mysql&gt; set @query_id := 4;</div><div class="line">Query OK, 0 rows affected</div><div class="line"></div><div class="line">mysql&gt; select state,sum(duration) as total_time from information_schema.profiling where query_id=@query_id group by state order by total_time desc;</div><div class="line">+----------------------+------------+</div><div class="line">| state                | total_time |</div><div class="line">+----------------------+------------+</div><div class="line">| Sending data         | 0.007694   |</div><div class="line">| freeing items        | 0.000116   |</div><div class="line">| starting             | 0.000068   |</div><div class="line">| Opening tables       | 0.000037   |</div><div class="line">| init                 | 0.000027   |</div><div class="line">| cleaning up          | 0.000019   |</div><div class="line">| statistics           | 0.000016   |</div><div class="line">| preparing            | 0.000014   |</div><div class="line">| closing tables       | 0.000014   |</div><div class="line">| checking permissions | 0.000012   |</div><div class="line">| System lock          | 0.000010   |</div><div class="line">| end                  | 0.000010   |</div><div class="line">| query end            | 0.000009   |</div><div class="line">| optimizing           | 0.000007   |</div><div class="line">| executing            | 0.000003   |</div><div class="line">+----------------------+------------+</div><div class="line">15 rows in set</div></pre></td></tr></table></figure>
-<p>从图中可以看出，最消耗时间的其实是sending data过程，sending data过程代表的是mysql开始访问数据行并把结果返回给客户端的一系列IO操作，经常是整个查询中最耗时的操作。</p>
-<p>下面就要分析sending data过程到底是哪一步最费时间，就可以执行以下语句来得到到底是cpu执行时间过长，还是因为等待前一个线程释放锁或者其他原因：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">show</span> profile all <span class="keyword">for</span> <span class="keyword">query</span> @query_id;</div></pre></td></tr></table></figure>
-<p>从结果（略）分析可知是sending data主要花在了cpu执行上，那么就可以针对该原因展开具体的改善措施。</p>
-<p>调查发现，payment表的存储引擎是InnoDB，因此没有表元数据的缓存（如count(*)的值），因此每次执行count()操作，就会导致大量的CPU操作，而Myisam存储引擎有表元数据的缓存，因此执行count()操作不需要花费很多时间，如果这里不考虑事务的话，将payment表的存储引擎改为Myisam即可显著减少sending data的时间。</p>
-</li>
-<li><p>确定问题后采取相应的优化措施</p>
-<p>通过explain一般可以解决是不是缺少索引，或者索引没有调用等sql语句的问题，如以%开头的LIKE查询就不能使用BTREE索引等</p>
-<p>而通过profile一般可以解决数据库是否应该开启缓存，数据库引擎设置是否得当，数据库服务器是否负载等比较大的问题</p>
-</li>
-</ol>
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="��˵�ü��Բ����ü���">
+    <meta name="keyword" content="null">
+    <meta name="theme-color" content="#600090">
+    <meta name="msapplication-navbutton-color" content="#600090">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#600090">
+    <link rel="shortcut icon" href="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-person-128.png">
+    <link rel="alternate" type="application/atom+xml" title="Moore" href="/atom.xml">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
+    <title>
+        
+        数据库面试总结｜Moore&#39;s blog
+        
+    </title>
+
+    <link rel="canonical" href="http://liuguochao.github.io/2017/03/20/数据库面试题/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/blog-style.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+
+<style>
+
+    header.intro-header {
+        background-image: url('//o7bkkhiex.bkt.clouddn.com/lion-blur-bg.jpg')
+    }
+</style>
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="" class="animated fadeIn">
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top " id="nav-top" data-ispost = "true" data-istags="false
+" data-ishome = "false" >
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand animated pulse" href="/">
+                <span class="brand-logo">
+                    Moore
+                </span>
+                's Blog
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <!-- /.navbar-collapse -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+					
+                    
+                        
+							
+                        <li>
+                            <a href="/tags/">tags</a>
+                        </li>
+							
+						
+                    
+					
+					
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+//    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+<!-- Main Content -->
+
+<!--only post-->
+
+
+<img class="wechat-title-img"
+     src="">
+
+
+<style>
+    
+    header.intro-header {
+        background-image: url('')
+    }
+
+    
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <div class="post-heading">
+                    <h1>数据库面试总结</h1>
+                    
+                    <span class="meta">
+                         作者 Moore
+                        <span>
+                          日期 2017-03-20
+                         </span>
+                    </span>
+                    <div class="tags text-center">
+                        
+                        <a class="tag" href="/tags/#数据库"
+                           title="数据库">数据库</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="post-title-haojen">
+        <span>
+            数据库面试总结
+        </span>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <!-- Post Container -->
+            <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
+                <ol>
+<li><p>#### </p>
 <h5 id="2：应用程序编程优化"><a href="#2：应用程序编程优化" class="headerlink" title="2：应用程序编程优化"></a>2：应用程序编程优化</h5><ol>
 <li><p>使用数据库连接池</p>
 <p>因为数据库建立连接的代价比较高，因此如果对于数据库的查询查询一次就建立一次连接，会使得服务器的大部分性能消耗在建立连接上。建立数据库连接池，可以很好的解决这个问题，至于框架怎么配置数据库连接池，请百度。</p>
@@ -114,9 +187,9 @@
 <li><p>避免对同一数据做重复检索</p>
 <p>应用中需要理清对数据库的访问逻辑，如果一次连接就能够查询到所要的结果，就不用两次连接，这样就可以大大减少对数据库无畏的访问。</p>
 <p>如，在某应用中查询某人的年龄和性别，那么就可以执行以下查询：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> age,gender <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> userid=<span class="number">231</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">select</span> age,gender <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> userid=<span class="number">231</span>;</div></pre></td></tr></table></figure>
 <p>之后有需要这个人的家庭住址，又开始执行</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> address <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> userid=<span class="number">231</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">select</span> address <span class="keyword">from</span> <span class="keyword">users</span> <span class="keyword">where</span> userid=<span class="number">231</span>;</div></pre></td></tr></table></figure>
 <p>而这两次请求基本上是同一个业务逻辑，此时就应该将这两次查询合二为一。</p>
 </li>
 <li><p>使用查询缓存</p>
@@ -152,16 +225,263 @@
 <p>把limit查询转换为某个位置的查询。例如，假设每页10条记录，查询payment中按照租赁编号rental_id逆序排序的第42页记录，能够看到执行计划走了全表扫描</p>
 <p><img src="H:\面试准备\page1.png" alt="page1"></p>
 <p>和开发人员协商一下，翻页的过程中通过增加一个参数last_page_record，用来记录上一页最后一行的租赁编号rental_id，例如第41页最后一行的租赁编号rental_id=15460:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> payment <span class="keyword">where</span> rental_id &lt; <span class="number">15460</span> <span class="keyword">order</span> <span class="keyword">by</span> rental_id <span class="keyword">desc</span> limt <span class="number">10</span>;</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> payment <span class="keyword">where</span> rental_id &lt; <span class="number">15460</span> <span class="keyword">order</span> <span class="keyword">by</span> rental_id <span class="keyword">desc</span> limt <span class="number">10</span>;</div></pre></td></tr></table></figure>
 <p>这样，第一页查询比较慢，但其他页的查询将会比较快，而且只适用于排序字段不会出现重复值的特定环境。</p>
 </li>
 </ol>
-</div></article></div></main><footer><div class="paginator"><a href="/2017/03/20/数据库事务面试准备/" class="prev">PREV</a><a href="/2017/03/20/JVM内存划分/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'seansun';
-var disqus_identifier = '2017/03/20/数据库面试题/';
-var disqus_title = '';
-var disqus_url = 'http://liuguochao.github.io/2017/03/20/数据库面试题/';
-(function() {
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//seansun.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2017 <a href="http://liuguochao.github.io">Moore</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+
+                <hr>
+                
+                <!-- 多说 Share start -->
+                <div class="ds-share"
+                     style="text-align: right"
+                     data-thread-key="2017/03/20/数据库面试题/"
+                     data-title="数据库面试总结"
+                     data-url="http://liuguochao.github.io/2017/03/20/数据库面试题/"
+                     data-images=""
+                     data-content="
+#### 
+2：应用程序编程优化
+使用数据库连接池
+因为数据库建立连接的代价比较高，因此如果... | Moore&#39;s blog ">
+                    <div class="ds-share-inline">
+                        <ul class="ds-share-icons-16">
+                            <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                            <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                            <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                            <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                        </ul>
+                        <div class="ds-share-icons-more">
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+                <!-- 多说 Share end-->
+                
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2017/03/20/数据库事务面试准备/" data-toggle="tooltip" data-placement="top"
+                           title="数据库事务">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                </ul>
+
+                
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread"
+                         data-thread-key="2017/03/20/数据库面试题/"
+                         data-title="数据库面试总结"
+                         data-url="http://liuguochao.github.io/2017/03/20/数据库面试题/">
+                    </div>
+                </div>
+                <!-- 多说评论框 end -->
+                
+
+                
+
+            </div>
+
+            <div class="hidden-xs col-sm-3 toc-col">
+                <div class="toc-wrap">
+                    <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#2：应用程序编程优化"><span class="toc-text">2：应用程序编程优化</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#优化分页查询"><span class="toc-text">优化分页查询</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5 class="text-center">
+                        <a href="/tags/">FEATURED TAGS</a>
+                    </h5>
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#数据库"
+                           title="数据库">数据库</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <div style="margin-top: 20px;">
+                    <h5 class="text-center">FRIENDS</h5>
+                    <ul class="list-inline text-center">
+                        
+                        <li><a href="http://rosen.xyz/">Roxen</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+</article>
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User by Hux
+    var _user = 'liuguochao';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {short_name: _user};
+    (function () {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <br>
+                <ul class="list-inline text-center">
+                
+                
+                
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/liu-guo-chao-86">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/liuliuguochao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/liuguochao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Moore 2017
+                    <br>
+                    <span id="busuanzi_container_site_pv" style="font-size: 12px;">PV: <span id="busuanzi_value_site_pv"></span> Times</span>
+                    <br>
+                    Theme by <a href="https://haojen.github.io/">Haojen Ma</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/blog.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://liuguochao.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- swiftype -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','null','2.0.0');
+</script>
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<!--wechat title img-->
+<img class="wechat-title-img" src="null">
+</body>
+
+</html>

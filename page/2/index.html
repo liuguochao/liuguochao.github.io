@@ -22,7 +22,7 @@
         
     </title>
 
-    <link rel="canonical" href="http://liuguochao.github.io/">
+    <link rel="canonical" href="http://liuguochao.github.io/page/2/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -273,9 +273,9 @@
 
 <div class="post-preview "
      style="background-image: url('')">
-    <a href="/2017/03/20/JVM内存划分/">
+    <a href="/2017/03/20/数据库事务面试准备/">
         <h2 class="post-title">
-            Java内存分区
+            数据库事务
         </h2>
         <p class="post-meta">
             <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
@@ -283,11 +283,11 @@
         
         <div class="post-content-preview">
             <p>
-                最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：
-上图：
-
-大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不是特别准确。准确的说JVM的内存可以划分为5个区域。
-堆java堆是jvm内存管理中最大的一块，线程共享。在jvm启动的时候创建。此区域唯一..
+                事务定义了一组操作，这些操作需满足，要么全部执行成功，要么全部不执行，它是数据库维持一致性的基本单位
+数据库事务的4个基本属性
+原子性
+原子性是指事务包含的所有操作要么全部成功，要么全部失败回滚，一般通过预写日志的方法进行实现。
+将所有对数据的更新操作都写入日志，如果一个事务中的一部分操作已经成..
             </p>
         </div>
     </a>
@@ -300,9 +300,9 @@
 
 <div class="post-preview "
      style="background-image: url('')">
-    <a href="/2017/03/20/JVM垃圾回收机制/">
+    <a href="/2017/03/20/数据库面试题/">
         <h2 class="post-title">
-            JVM垃圾回收机制
+            数据库面试总结
         </h2>
         <p class="post-meta">
             <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
@@ -310,164 +310,15 @@
         
         <div class="post-content-preview">
             <p>
-                Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：
+                
+#### 
+2：应用程序编程优化
+使用数据库连接池
+因为数据库建立连接的代价比较高，因此如果对于数据库的查询查询一次就建立一次连接，会使得服务器的大部分性能消耗在建立连接上。建立数据库连接池，可以很好的解决这个问题，至于框架怎么配置数据库连接池，请百度。
 
-哪些内存需要回收
-什么时候回收
-如何回收
+减少对mysql的访问
 
-这里的GC算法主要指的是堆和方法区的GC算法，因为程序计数器、虚拟机栈、本地方法栈3个区域随线程而生，随线程而灭..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/Java命令模式/">
-        <h2 class="post-title">
-            命令模式
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。
-现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&gt; 柜台服务员记录下来（创建命令） -..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/Java策略模式/">
-        <h2 class="post-title">
-            策略模式
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                策略模式用一句话概括就是“面向接口编程”，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。
-借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：
-你是某游戏公司的软件工程师Joe，现在有个打鸭子的游戏要做，因为鸭子种类很多（假如..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/Java单例模式/">
-        <h2 class="post-title">
-            单例模式
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                单例模式是面试最常问的设计模式之一，在实践中也经常使用，而且也是唯一一个能够用短短几十行代码就可以完整实现的模式，因此经常会被要求在面试中现场写一个单例模式。
-实现单例模式的方式有很多，总结一个基本上有以下几类：
-1. 饿汉式
-2. 懒汉式
-3. 枚举模式
-首先最基本的肯定是将构造函数设为私有，..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/Java工厂模式/">
-        <h2 class="post-title">
-            工厂模式
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                一般认为工厂模式分为简单工厂模式、工厂方法模式、抽象工厂模式，但严格来说，简单工厂模式并不属于设计模式，而更像是一种编程习惯。下面介绍这3种设计模式：
-简单工厂模式看如下代码：
-//假如你经营一个Pizza店,下面是你的Pizza店订购系统的代码Pizza orderPizza()&#123;	..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/Java观察者模式/">
-        <h2 class="post-title">
-            观察者模式
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                观察者模式又叫发布-订阅模式，来源于现实世界中报纸与订阅者之间关系的抽象，一种报纸对应多个订阅者，订阅者可以随时解除订阅，未订阅的读者也可以随时开始订阅。一旦有新报纸发布，所有的订阅者都会收到新内容。它可以很好的维护对象之间“一对多”的依赖关系，因此经常在实践中得以运用，也经常会在面试中问道。
-..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/helloMyBlog/">
-        <h2 class="post-title">
-            Hello My Blog
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                今天搭建了我的博客。
-其实很久之前，舍友就推荐我搭建个自己的博客，说是很好玩，博客的主题也都很fashion，但是都忘记了。现在，研究生也都读了一半了，想想自己学习的东西大都糊里糊涂地记在脑海里，没有形成系统，这样在整理自己的知识网络的过程中，难免会有所遗漏。
-因此，今天费了一下午的时间，按照这..
+避免对同一..
             </p>
         </div>
     </a>
@@ -483,10 +334,10 @@
 
 <ul class="pager">
     
-    
-    <li class="next">
-        <a href="/page/2/">Older Posts &rarr;</a>
+    <li class="previous">
+        <a href="/">&larr; Newer Posts</a>
     </li>
+    
     
 </ul>
 
