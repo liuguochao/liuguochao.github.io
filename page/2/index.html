@@ -311,14 +311,84 @@
         <div class="post-content-preview">
             <p>
                 
-#### 
-2：应用程序编程优化
-使用数据库连接池
-因为数据库建立连接的代价比较高，因此如果对于数据库的查询查询一次就建立一次连接，会使得服务器的大部分性能消耗在建立连接上。建立数据库连接池，可以很好的解决这个问题，至于框架怎么配置数据库连接池，请百度。
+连接的种类(1)  内连接
+##内连接仅选出两张表相互匹配的记录，关键字为[inner] join，可以##如从employ,dept表中选取出每位雇员的名字和其对应的部门名称select employ_name,depart_name from employ,dept where emplo..
+            </p>
+        </div>
+    </a>
 
-减少对mysql的访问
+</div>
 
-避免对同一..
+<hr>
+
+
+
+<div class="post-preview "
+     style="background-image: url('')">
+    <a href="/2017/03/20/JVM内存划分/">
+        <h2 class="post-title">
+            Java内存分区
+        </h2>
+        <p class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+        </p>
+        
+        <div class="post-content-preview">
+            <p>
+                最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：
+上图：
+
+大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不是特别准确。准确的说JVM的内存可以划分为5个区域。
+堆java堆是jvm内存管理中最大的一块，线程共享。在jvm启动的时候创建。此区域唯一..
+            </p>
+        </div>
+    </a>
+
+</div>
+
+<hr>
+
+
+
+<div class="post-preview "
+     style="background-image: url('')">
+    <a href="/2017/03/20/Java命令模式/">
+        <h2 class="post-title">
+            命令模式
+        </h2>
+        <p class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+        </p>
+        
+        <div class="post-content-preview">
+            <p>
+                假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。
+现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&gt; 柜台服务员记录下来（创建命令） -..
+            </p>
+        </div>
+    </a>
+
+</div>
+
+<hr>
+
+
+
+<div class="post-preview "
+     style="background-image: url('')">
+    <a href="/2017/03/20/Java策略模式/">
+        <h2 class="post-title">
+            策略模式
+        </h2>
+        <p class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+        </p>
+        
+        <div class="post-content-preview">
+            <p>
+                策略模式用一句话概括就是“面向接口编程”，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。
+借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：
+你是某游戏公司的软件工程师Joe，现在有个打鸭子的游戏要做，因为鸭子种类很多（假如..
             </p>
         </div>
     </a>
@@ -426,6 +496,11 @@
                     
                     <a href="/tags/#数据库" title="数据库"
                        rel="2">数据库</a>
+                    
+                    
+                    
+                    <a href="/tags/#算法" title="算法"
+                       rel="3">算法</a>
                     
                     
                 </div>

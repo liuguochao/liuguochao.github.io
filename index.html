@@ -273,21 +273,17 @@
 
 <div class="post-preview "
      style="background-image: url('')">
-    <a href="/2017/03/20/JVM内存划分/">
+    <a href="/2017/03/28/字符串匹配算法/字符串匹配算法/">
         <h2 class="post-title">
-            Java内存分区
+            字符串匹配算法
         </h2>
         <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-28
         </p>
         
         <div class="post-content-preview">
             <p>
-                最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：
-上图：
-
-大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不是特别准确。准确的说JVM的内存可以划分为5个区域。
-堆java堆是jvm内存管理中最大的一块，线程共享。在jvm启动的时候创建。此区域唯一..
+                在Java中我们会经常使用string.indexOf(String subStr)这个方法查询子串是否为string的子串，若存在返回子串第一次出现处的索引，如果不存在返回-1。虽然经常使用这个字符串匹配算法，但是我们却不了解其源码，这次我们聊一聊这个函数的源码，因为很多面试题是和这个问题类似..
             </p>
         </div>
     </a>
@@ -300,23 +296,21 @@
 
 <div class="post-preview "
      style="background-image: url('')">
-    <a href="/2017/03/20/JVM垃圾回收机制/">
+    <a href="/2017/03/26/查找/">
         <h2 class="post-title">
-            JVM垃圾回收机制
+            查找
         </h2>
         <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-26
         </p>
         
         <div class="post-content-preview">
             <p>
-                Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：
-
-哪些内存需要回收
-什么时候回收
-如何回收
-
-这里的GC算法主要指的是堆和方法区的GC算法，因为程序计数器、虚拟机栈、本地方法栈3个区域随线程而生，随线程而灭..
+                查找是最基本的算法之一，在日常的编程中也经常会遇到。因此经常会被拿来作为面试题。今天就总结一下查找的一些基本概念和算法，帮助自己梳理这块东西的复习。
+先复习几个概念吧：
+查找
+查找指的在一组记录组成的集合中寻找主关键字等于给定值的某个记录，或者寻找属性值符合特定条件的某些记录。
+如数据库中按照学..
             </p>
         </div>
     </a>
@@ -329,43 +323,19 @@
 
 <div class="post-preview "
      style="background-image: url('')">
-    <a href="/2017/03/20/Java命令模式/">
+    <a href="/2017/03/21/二叉树/二叉树/">
         <h2 class="post-title">
-            命令模式
+            二叉树
         </h2>
         <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-21
         </p>
         
         <div class="post-content-preview">
             <p>
-                假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。
-现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&gt; 柜台服务员记录下来（创建命令） -..
-            </p>
-        </div>
-    </a>
-
-</div>
-
-<hr>
-
-
-
-<div class="post-preview "
-     style="background-image: url('')">
-    <a href="/2017/03/20/Java策略模式/">
-        <h2 class="post-title">
-            策略模式
-        </h2>
-        <p class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
-        </p>
-        
-        <div class="post-content-preview">
-            <p>
-                策略模式用一句话概括就是“面向接口编程”，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。
-借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：
-你是某游戏公司的软件工程师Joe，现在有个打鸭子的游戏要做，因为鸭子种类很多（假如..
+                二叉树经常被用于快速查找，快速排序，在现实场景中应用广泛，因此经常会在面试中被问到。今天就系统的复习一下二叉树的一些基本操作。
+二叉树的存储二叉树的存储方式大致分为顺序存储和链式存储。
+顺序存储一般是用数组来存，存储密度比较高；但是存储之前需要按照某种遍历方式，先将二叉树的节点按照某种遍历方式遍..
             </p>
         </div>
     </a>
@@ -443,6 +413,35 @@
             <p>
                 观察者模式又叫发布-订阅模式，来源于现实世界中报纸与订阅者之间关系的抽象，一种报纸对应多个订阅者，订阅者可以随时解除订阅，未订阅的读者也可以随时开始订阅。一旦有新报纸发布，所有的订阅者都会收到新内容。它可以很好的维护对象之间“一对多”的依赖关系，因此经常在实践中得以运用，也经常会在面试中问道。
 ..
+            </p>
+        </div>
+    </a>
+
+</div>
+
+<hr>
+
+
+
+<div class="post-preview "
+     style="background-image: url('')">
+    <a href="/2017/03/20/JVM垃圾回收机制/">
+        <h2 class="post-title">
+            JVM垃圾回收机制
+        </h2>
+        <p class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> 2017-03-20
+        </p>
+        
+        <div class="post-content-preview">
+            <p>
+                Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：
+
+哪些内存需要回收
+什么时候回收
+如何回收
+
+这里的GC算法主要指的是堆和方法区的GC算法，因为程序计数器、虚拟机栈、本地方法栈3个区域随线程而生，随线程而灭..
             </p>
         </div>
     </a>
@@ -575,6 +574,11 @@
                     
                     <a href="/tags/#数据库" title="数据库"
                        rel="2">数据库</a>
+                    
+                    
+                    
+                    <a href="/tags/#算法" title="算法"
+                       rel="3">算法</a>
                     
                     
                 </div>

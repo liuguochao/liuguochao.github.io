@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://liuguochao.github.io/"/>
-  <updated>2017-03-20T12:42:03.755Z</updated>
+  <updated>2017-03-29T03:29:28.077Z</updated>
   <id>http://liuguochao.github.io/</id>
   
   <author>
@@ -16,259 +16,317 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Java内存分区</title>
-    <link href="http://liuguochao.github.io/2017/03/20/JVM%E5%86%85%E5%AD%98%E5%88%92%E5%88%86/"/>
-    <id>http://liuguochao.github.io/2017/03/20/JVM内存划分/</id>
-    <published>2017-03-20T09:35:58.000Z</published>
-    <updated>2017-03-20T12:42:03.755Z</updated>
+    <title>字符串匹配算法</title>
+    <link href="http://liuguochao.github.io/2017/03/28/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95/"/>
+    <id>http://liuguochao.github.io/2017/03/28/字符串匹配算法/字符串匹配算法/</id>
+    <published>2017-03-28T07:39:50.000Z</published>
+    <updated>2017-03-29T03:29:28.077Z</updated>
     
-    <content type="html"><![CDATA[<p>最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：</p>
-<p>上图：</p>
-<p><img src="./region.jpeg" alt="region"></p>
-<p>大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不是特别准确。准确的说JVM的内存可以划分为5个区域。</p>
-<h4 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h4><p>java堆是jvm内存管理中最大的一块，线程共享。在jvm启动的时候创建。此区域唯一目的就是存放对象实例，几乎所有的对象实例都在这里分配内存。</p>
-<p>由于现在的收集器基本都采用分代收集算法，所以java堆还可以细分为新生代和老年代，新生代中垃圾回收算法为复制算法，老年代中采用的为标记-清除算法</p>
-<p>新生代还可以细分为Eden区和Survivor区，对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代，这里的长期存活是根据新生代中的对象年龄阈值来定义的，对象刚分配到新生代的时候年龄为1，每进行一次GC对象的年龄会加1，HotSpot中默认的阈值是15，也就是说对象年龄达到15岁的时候会被分配到老年代，这个值是可以通过参数配置的。</p>
-<h4 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h4><p>方法区又被称为永久代，线程共享，是用来存储已被JVM加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。方法区为堆的一个逻辑部分，但是在JDK1.7的HotSpot中已经将方法区中的字符串常量池移出，部分资料显示JDK1.8已经去除了方法区（不确定）。不过已经可以猜测此区域将会被本地内存逐步取代。</p>
-<p>这个区域很少进行垃圾回收，回收目标主要是针对常量池的回收和对类型的卸载，回收的条件相当苛刻</p>
-<h4 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h4><p>虚拟机栈是线程私有的，它的生命周期与线程相同。JVM栈描述的是java方法执行的内存模型，每个方法在执行的同时都会创建一个栈帧，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。<strong>每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程</strong>。</p>
-<p><strong>局部变量表中存放了编译期可知的各种基本数据类型、对象的引用类型。局部变量表中需要的内存空间在编译期间完成分配，当进入一个方法时，这个方法需要在帧中分配多大的局部变量空间是完全确定的，在方法运行期间不会改变局部变量表的大小</strong>。</p>
-<h4 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h4><p>本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方法栈是为jvm使用到对的本地方法服务。HotSpot虚拟机中直接把本地方法栈和JVM栈合二为一了。例如在java中调用Python书写的程序，就需要使用本地方法栈</p>
-<h4 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h4><p>程序计数器是一块较小的内存空间，线程私有。所以每个线程内部都维护了一个程序计数器。它可以看作是当前线程所执行的字节码的行号指示器。在jvm的概念模型里，字节码解释器工作就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。如果线程正在执行的是一个java方法，这个计数器记录的是正在执行的jvm字节码指令的地址；如果正在执行的是本地方法，这个计数器值则为空。</p>
+    <content type="html"><![CDATA[<p>在Java中我们会经常使用<strong>string.indexOf(String subStr)</strong>这个方法查询子串是否为string的子串，若存在返回子串第一次出现处的索引，如果不存在返回-1。虽然经常使用这个字符串匹配算法，但是我们却不了解其源码，这次我们聊一聊这个函数的源码，因为很多面试题是和这个问题类似的。</p>
+<p>首先介绍两种常见的字符串匹配算法：</p>
+<p>设s为主串的char型数组，t为子串的char型数组，i为主串当前比较字符的下标，j为子串当前比较字符的下标，start为主串开始比较字符的下标，i的初值为start，j的初值均为0。</p>
+<ol>
+<li><p><strong>Brute-Force模式匹配算法</strong></p>
+<p>该算法是最简单，也最容易想到的字符串匹配算法，其算法描述如下：</p>
+<ol>
+<li>将s[i]与t[j]比较，若相等则继续比较s[++i]与t[++j]，否则转入步骤2</li>
+<li>将i赋为++start，j赋为0，继续按照1步骤进行比较s[i]与s[j]</li>
+<li>若i &lt; s.length 且j == t.length-1，则返回start，否则，返回-1</li>
+</ol>
+<p>相应的算法实现代码为：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">indexOf_BF</span><span class="params">(<span class="keyword">char</span>[] s,<span class="keyword">char</span>[] t,<span class="keyword">int</span> start)</span></span>&#123;</div><div class="line">    <span class="keyword">int</span> i = start, j = <span class="number">0</span>;</div><div class="line">    <span class="keyword">while</span> (i &lt; s.length &amp;&amp; j &lt; t.length)&#123;</div><div class="line">        <span class="keyword">if</span> (start &gt; s.length-t.length)&#123;</div><div class="line">            <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (s[i] == t[j])&#123;</div><div class="line">            i++;</div><div class="line">            j++;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            i = ++start;</div><div class="line">            j = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (j &gt;= t.length)&#123;</div><div class="line">        <span class="keyword">return</span> start;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们使用的Java中自带的indexof()方法，用的字符串匹配查找算法就是这个。最好的时间复杂度为O(m)，最坏的时间复杂度为O((n-m+1)*m)。</p>
+</li>
+<li><p><strong>KMP模式匹配算法</strong></p>
+<p>虽然Brute_Force算法实现简单且易于理解，但是在最坏条件下其查找效率比较低。例如：当主串s和子串t中已有多个字符比较相等，但只要后面遇到的一个字符不相等，就需要主串的比较位置i回退到start+1。例如下面这种情况：<br>$$<br>主串\ s\ = “aaaaaaaaab”\\<br>子串\ t\ = “aaab”<br>$$<br>KMP算法就利用“部分已匹配”的结果，将子串t向右滑动到适当的位置，从而使得i不回退，达到改进Brute算法的目的。</p>
+<p>算法描述如下：</p>
+<ol>
+<li>i 初值赋为 start, j初值赋为0，若s[i] == t[j],i++,j++,否则，需要通过next[j]，得到子串可以滑动的距离next[j]</li>
+<li>若next[j]不为-1，则是相应的子串可以滑动的距离j，下次比较s[i]与t[j]</li>
+<li>若next[j]为-1，则直接比较s[i+1]与t[0]，因为当前比较的子串元素t[j]与t[0]相等，所以可以不必要再比较s[i]与t[0]，直接比较s[i+1]与t[0]即可</li>
+</ol>
+<p>其代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">indexOf_KMP</span><span class="params">(<span class="keyword">char</span>[] s,<span class="keyword">char</span>[] t,<span class="keyword">int</span> start)</span></span>&#123;</div><div class="line">    <span class="keyword">int</span> i = start, j = <span class="number">0</span>;</div><div class="line">    <span class="keyword">int</span>[] next = next(t);</div><div class="line">    <span class="keyword">while</span> (i &lt; s.length &amp;&amp; j &lt; t.length)&#123;</div><div class="line">        <span class="keyword">if</span> (j == -<span class="number">1</span> || s[i] == t[j])&#123;</div><div class="line">            i++;</div><div class="line">            j++;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            j = next[j];</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (j &gt;= t.length)&#123;</div><div class="line">        <span class="keyword">return</span> i-t.length;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] next(<span class="keyword">char</span>[] t)&#123;</div><div class="line">    <span class="keyword">int</span>[] next = <span class="keyword">new</span> <span class="keyword">int</span>[t.length];</div><div class="line">    next[<span class="number">0</span>] = -<span class="number">1</span>;</div><div class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, j = -<span class="number">1</span>;</div><div class="line">    <span class="keyword">while</span> (i &lt; t.length-<span class="number">1</span>)&#123;</div><div class="line">        <span class="keyword">if</span> (j == -<span class="number">1</span> || t[i] == t[j])&#123;</div><div class="line">            i++;</div><div class="line">            j++;</div><div class="line">            <span class="keyword">if</span> (t[i] != t[j])&#123;</div><div class="line">                next[i] = j;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                next[i] = next[j];</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            j = next[j];</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> next;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>KMP模式匹配算法的最坏时间复杂度为O(m+n)，远小于BF算法</p>
+</li>
+</ol>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：&lt;/p&gt;
-&lt;p&gt;上图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;./region.jpeg&quot; alt=&quot;region&quot;&gt;&lt;/p&gt;
-&lt;p&gt;大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不
+      &lt;p&gt;在Java中我们会经常使用&lt;strong&gt;string.indexOf(String subStr)&lt;/strong&gt;这个方法查询子串是否为string的子串，若存在返回子串第一次出现处的索引，如果不存在返回-1。虽然经常使用这个字符串匹配算法，但是我们却不了解其源码，这次
     
     </summary>
     
     
-      <category term="JVM" scheme="http://liuguochao.github.io/tags/JVM/"/>
+      <category term="算法" scheme="http://liuguochao.github.io/tags/%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
-    <title>JVM垃圾回收机制</title>
-    <link href="http://liuguochao.github.io/2017/03/20/JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/"/>
-    <id>http://liuguochao.github.io/2017/03/20/JVM垃圾回收机制/</id>
-    <published>2017-03-20T09:35:58.000Z</published>
-    <updated>2017-03-20T11:36:26.375Z</updated>
+    <title>查找</title>
+    <link href="http://liuguochao.github.io/2017/03/26/%E6%9F%A5%E6%89%BE/"/>
+    <id>http://liuguochao.github.io/2017/03/26/查找/</id>
+    <published>2017-03-26T02:23:30.000Z</published>
+    <updated>2017-03-28T06:33:39.296Z</updated>
     
-    <content type="html"><![CDATA[<p>Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：</p>
-<ul>
-<li>哪些内存需要回收</li>
-<li>什么时候回收</li>
-<li>如何回收</li>
-</ul>
-<p>这里的GC算法主要指的是堆和方法区的GC算法，因为程序计数器、虚拟机栈、本地方法栈3个区域随线程而生，随线程而灭，它们内存区域应该分配多少内存在编译期间就已知，因此这3个区域的内存分配和回收都具备确定性，不需要复杂的GC算法，而堆和方法区直到程序运行时才能最终确定需要创建多少对象，因此内存的分配和回收都是动态的，所以需要设计比较高效的GC算法。</p>
-<h4 id="哪些内存需要回收"><a href="#哪些内存需要回收" class="headerlink" title="哪些内存需要回收"></a>哪些内存需要回收</h4><p>在堆里面存放着Java中几乎所有对象的实例，垃圾收集器在对堆中对象进行回收之前，需要首先判断哪些对象还<strong>存活</strong>着，哪些已经<strong>死去</strong>。</p>
-<ol>
-<li><p><strong>引用计数法</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">给对象中添加一个引用计数器，每当有一个地方引用它时，计数值就加1；档引用失效时，计数值就减1；任何时刻计数器为0的对象就是不可能再被使用的</div></pre></td></tr></table></figure>
-<p>这种方法简单高效，但是主流的Java虚拟机中普遍没有采用这种方法，因为他无法解决<strong>对象间相互循环引用的问题</strong></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">ListNode a=<span class="keyword">new</span> ListNode();</div><div class="line">ListNode b=<span class="keyword">new</span> ListNode();</div><div class="line">a.next=b;</div><div class="line">b.next=a;</div><div class="line">a=<span class="keyword">null</span>;</div><div class="line">b=<span class="keyword">null</span>;</div></pre></td></tr></table></figure>
-<p>在上面的代码中，对象a、b的next相互指向对方，除此之外再没有任何引用，实际上这两个对象已经不可能再被访问，然而如果采用引用计数法，两个对象的计数都不为0，因为他们互相指向对方，导致垃圾回收器无法回收他们。</p>
+    <content type="html"><![CDATA[<p>查找是最基本的算法之一，在日常的编程中也经常会遇到。因此经常会被拿来作为面试题。今天就总结一下查找的一些基本概念和算法，帮助自己梳理这块东西的复习。</p>
+<h4 id="先复习几个概念吧："><a href="#先复习几个概念吧：" class="headerlink" title="先复习几个概念吧："></a>先复习几个概念吧：</h4><ol>
+<li><p>查找</p>
+<p>查找指的在一组记录组成的集合中寻找主关键字等于给定值的某个记录，或者寻找属性值符合特定条件的某些记录。</p>
+<p>如数据库中按照学生的学号查找，查找的</p>
+<p>是主关键字，因此最多只能查到一条与之相对应的记录。但是如果按照姓名查找，则可能会查到多条与之相对应的记录。</p>
 </li>
-<li><p><strong>可达性分析算法</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">这个算法的基本思想就是通过一系列成为”GC Roots“的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径成为引用链，档一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。</div></pre></td></tr></table></figure>
-<p><img src="./road.png" alt="road"></p>
-<p>例如上图所示，对象object5、object6、object7虽然互相有关联，但是他们到GC Roots是不可达的，所以他们将会被判定为是可回收的对象。</p>
-<p>在主流的商用程序语言的主流实现中，都是采用可达性分析算法来判定对象是否存活的。</p>
-<p>Java中，可以作为GC Roots的对象包括下面几种：</p>
-<ul>
-<li>虚拟机栈（栈帧中的本地表量表）中引用的对象</li>
-<li>方法区中类静态属性引用的对象</li>
-<li>方法区中常量引用的对象</li>
-<li>本地方法栈中JNI（Native方法）引用的对象</li>
-</ul>
-<p>一个对象并不是被判定为不可达，就一定会被回收，因为它还会经历一个<strong>两次标记的过程</strong>：</p>
-<p>第一次：判断为不可达后，会进行第一次标记，并进行筛选以判断该对象是否执行finalize()方法，筛选的条件是：</p>
-<ul>
-<li>对象没有覆盖finalize()方法</li>
-<li>该对象的finalize()方法已经被虚拟机调用过</li>
-</ul>
-<p>这两种情况下，都不会再执行finalize()方法。</p>
+<li><p>查找表</p>
+<p>查找表是一种数据结构，即如何组织同一类型的记录集合的存储方式使得其更易查找。</p>
+<p>查找表常用的操作有：建表、查找、读表元、修改操作(插入、删除 、更新)</p>
+<p>读表元指的是读取满足某种条件的记录的各个属性</p>
+<p>查找表一般分为<strong>静态查找表</strong>和<strong>动态查找表</strong>。若对查找表的操作不包括修改操作，则称此类查找表为静态查找表；相应的则为动态查找表。</p>
+</li>
+<li><p>平均查找长度</p>
+<p>查找过程中给定值与关键字值比较次数的期望值可以作为衡量一个查找算法优劣的标准，称之为平均查找长度（Average Search Length)，定义为:<br>$$<br>ASL = \sum<em>{i=0}^{n-1}p</em>{i}c<em>{i} \\<br>其中，n是节点个数；p</em>{i}是查找第i个节点的概率，且\sum<em>{i=0}^{n-1}p</em>{i}=1,在每一记录查找概率相等的情况下，p<em>{i}=1/n；\\<br>c</em>{i}是查找第i条记录时关键字值与给定值的比较次数<br>$$<br>其实一般还是都会说查找的时间复杂度是多少。</p>
 </li>
 </ol>
-<h4 id="什么时候回收"><a href="#什么时候回收" class="headerlink" title="什么时候回收"></a>什么时候回收</h4><p>比较常见的说法就是虚拟机会在系统空闲的时候进行垃圾回收，但这不够准确。其实上面时候进行回收确实是系统自身决定的，代码不可控制，System.gc()方法也仅仅是建议，但不一定会保证一定发生。</p>
-<p>回答这个问题，一定要结合JVM堆内存的划分来回答，现在来回想一下堆内存的划分。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">java堆可以细分为新生代和老年代,新生代还可以细分为Eden区和Survivor区，对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代</div></pre></td></tr></table></figure>
-<p>不同区域的垃圾回收频率和算法均不一样，因此，可以这样回答这个问题：</p>
-<p>Java的GC分为两种：新生代GC和老年代GC：</p>
-<ul>
-<li><strong>新生代GC(Minor GC)</strong>：指发生在新生代的垃圾收集动作，因为这里面对象都是“朝生夕死”的，所以Minor GC非常频繁，一般回收速度也比较快。</li>
-<li><strong>老年代GC(Major GC/Full GC)</strong>：指发生在老年代的GC，出现Major GC经常会伴随至少一次的Minor GC(但不是绝对的)。</li>
-</ul>
+<h4 id="静态查找表"><a href="#静态查找表" class="headerlink" title="静态查找表"></a>静态查找表</h4><p>顺序查找表底层的存储是用线性表来实现的</p>
 <ol>
-<li><h5 id="新生代GC"><a href="#新生代GC" class="headerlink" title="新生代GC"></a>新生代GC</h5><h5 id="Eden区与Minor-GC"><a href="#Eden区与Minor-GC" class="headerlink" title="Eden区与Minor GC"></a>Eden区与Minor GC</h5><p>大多数情况下，对象会在新生代的Eden区分配，当Eden没有足够的空间进行分配时，虚拟机将发起一次Minor GC。</p>
-</li>
-<li><h5 id="老年代GC"><a href="#老年代GC" class="headerlink" title="老年代GC"></a>老年代GC</h5><p>执行Full GC由于消耗的资源比较大，所以会比较谨慎，在进行之前需要两次判断。</p>
-<ul>
-<li><p><strong>第一次判断：</strong>在发生Full GC之前，虚拟机会检查老年代最大可用连续空间是否大于新生代所有对象的总空间，如果大于，那么Minor GC可以安全执行，没有必要执行Full GC。</p>
-<p>但是，如果不成立，那么就<strong>可能</strong>有必要执行一次Full GC以清除老年代的垃圾。</p>
-<p>为什么说可能呢？因为虽然现在老年代无法容纳所有新生代的内存，但是大部分情况下新生代的内存都会被清理很多的，所以万一新生代需要进入老年代的内存只占其中一小部分呢，那么就不用执行Full GC了啊，当然，这在运行时无法确定，需要冒险。</p>
-</li>
-<li><p><strong>第二次判断:</strong>  有一个参数<strong>HandlePromotionFailure</strong>的作用就是设置是不是要冒险，如果设置为可以冒险，那么会那么会继续检查老年代最大可用的连续空间，判断它是否大于历次晋升到老年代对象的平均大小，也就是大致评估一下这次冒险的成功率，如果如果大于，说明冒险的成功率比较高，那么就不会执行Full GC。</p>
-<p>如果设置为不可以冒险，或者冒险的成功率比较低，那么久会老老实实的执行Full GC</p>
-<p>最后，如果冒险失败，那么最后还是会进行Full GC</p>
-</li>
-</ul>
+<li><p>顺序查找</p>
+<p>顺序查找就是从表的一端开始，依次将每一个数据元素的关键字值与给定值key进行比较。</p>
+<p>这里以数组查找作为例子，介绍各种查找方式的区别，以下方法类似。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">seqSearch</span><span class="params">([] array,<span class="keyword">int</span> k)</span></span>&#123;</div><div class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line">    <span class="keyword">int</span> n = array.length;</div><div class="line">    <span class="keyword">while</span> (i &lt; n &amp;&amp; array[i] != k)&#123;</div><div class="line">        i++;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (i &lt; n)&#123;</div><div class="line">        <span class="keyword">return</span> i;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>$$<br>顺序查找的平均查找长度为：(n+1)/2，则其平均时间复杂度为O(n/2)<br>$$</p>
 <p>​</p>
-<p>可以看出，虚拟机执行Full GC是非常谨慎的，不到万不得已绝不执行，就是因为这个过程非常浪费资源，Full GC的速度一般会比Minor GC慢10倍以上</p>
+<p>当n比较大时查找效率比较低。但是，顺序查找对记录如何存储没有要求，适合频繁的插入和删除工作（链表存储）。</p>
+<p>想要提高顺序表的查找速度，一种方法是，在已知各个记录的查找概率不等的情况下，将各个记录按照查找概率的大小排序记录，就可以降低查找的平均查找长度。（这个非常适合新闻网站的查询工作的优化，因为大家关注的都是热点新闻，因此可以将热点新闻记录在前，老旧的新闻记录在后，这样就可以极大地提高查询的效率）；另外一种方法和上一个方法类似，只不过事先不知道哪些记录更可能被查到，可以设定一个规则，类似于新闻点击排行，当一条记录被查询，就与该条记录的前一条记录交换顺序存储位置，这样经过不断的迭代之后，最可能被查到的记录就会排列在前；</p>
 </li>
-</ol>
-<h4 id="如何回收"><a href="#如何回收" class="headerlink" title="如何回收"></a>如何回收</h4><p>为了提高垃圾回收的效率，JVM细分为新生代和老年代，对不同的内存区域选用不同的GC算法，即所谓的分代收集算法。</p>
+<li><p>二分查找</p>
+<p>若静态查找表中的数据记录是按照关键字排好序的，那么此时如果还按照顺序查找的话，查找效率是比较低的。此时可以采用二分的方式查找。其具体步骤如下：</p>
 <ol>
-<li><p><strong>新生代GC算法</strong></p>
-<ul>
-<li><p>标记清除算法</p>
-<p>分为标记和清除两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。</p>
-<p><img src="./bjqc.png" alt="bjqc"></p>
-<p>该算法的缺点是效率不高并且会产生不连续的内存碎片，所以GC基本不采用这种算法。</p>
-</li>
-<li><p>复制算法</p>
-<p>把内存空间划为两个区域，每次只使用其中一个区域。垃圾回收时，遍历当前使用区域，把正在使用中的对象复制到另外一个区域中。次算法每次只处理正在使用中的对象，因此复制成本比较小，同时复制过去以后还能进行相应的内存整理，不会出现“碎片”问题。</p>
-<p><img src="./fz.png" alt="fz"></p>
-</li>
-</ul>
-<p>​    优点：实现简单，运行高效</p>
-<p>​    缺点：会浪费一块内存</p>
-<p>然而，为什么现在的虚拟机都是采用这种复制算法来回收新生代的垃圾呢，因为新生代的对象中，大部分都是“朝生夕死”的。所以，并不需要按照1：1的（理论）比例来分配，而是将新生代继续划分为Eden区域和Survivor区域，划分比例为8:1:1（默认，其实可以调），如下图：</p>
-<p><img src="./eden_survivor.png" alt="eden_survivor"></p>
+<li>将给定的关键字与有序表的中间记录的关键字比较</li>
+<li>若相等，则返回其索引；若比它小，则查找其左边表记录；若比它大，则查找其右边表记录</li>
+<li>重复1，2直至找到该元素</li>
+</ol>
+<p>其查找过程其实就是一个二分查找树的搜索过程：</p>
+<p><img src="http://www.educity.cn/zk/sjjg/images/134.jpg" alt="二分查找树"></p>
+<p>其代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">binarySearch</span><span class="params">(<span class="keyword">int</span>[] array,<span class="keyword">int</span> k)</span></span>&#123;</div><div class="line">    <span class="keyword">int</span> n = array.length;</div><div class="line">    <span class="keyword">int</span> low = <span class="number">0</span>, high = n-<span class="number">1</span>;</div><div class="line">    <span class="keyword">while</span> (low &lt;= high)&#123;</div><div class="line">        <span class="keyword">int</span> mid = (low+high)/<span class="number">2</span>;</div><div class="line">        <span class="keyword">if</span> (array[mid] == k)&#123;</div><div class="line">            <span class="keyword">return</span> mid;</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (array[mid] &lt; k)&#123;</div><div class="line">            low = mid+<span class="number">1</span>;</div><div class="line">        &#125; <span class="keyword">else</span>&#123;</div><div class="line">            high = mid-<span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//递归形式如下</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">binarySearch</span><span class="params">(<span class="keyword">int</span>[] array,<span class="keyword">int</span> k,<span class="keyword">int</span> begin,<span class="keyword">int</span> end)</span></span>&#123;</div><div class="line">    <span class="keyword">int</span> low = begin, high = end;</div><div class="line">    <span class="keyword">int</span> mid = (low+high)/<span class="number">2</span>;</div><div class="line">    <span class="keyword">if</span> (low &gt; high)&#123;</div><div class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (array[mid] == k)&#123;</div><div class="line">        <span class="keyword">return</span> mid;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (array[mid] &lt; k)&#123;</div><div class="line">        <span class="keyword">return</span> binarySearch(array,k,mid+<span class="number">1</span>,high);</div><div class="line">    &#125; <span class="keyword">else</span>&#123;</div><div class="line">        <span class="keyword">return</span> binarySearch(array,k,low,mid-<span class="number">1</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>$$<br>二分查找的平均查找长度：AVL=log<em>{2}(n+1)-1，平均时间复杂度则为O(log</em>{2}n)<br>$$</p>
 <p>​</p>
-<p>其中，Survivor区域被划分为Survivor1和Survivor2，也成为from区域和to区域。</p>
-<p>当Eden区满执行GC的时候，将 Eden 区和 Survivor区中还存活着的对象一次性地复制到另一块Survivor(to)空间上，最后清理掉Eden和过程用过的Survivor(from)的空间。然后from和to对调，下次继续这样执行。</p>
-<p>这样每次新生代中可用的内存空间是整个新生代的90%(Eden和一个Survivor， 80%+10%)，只用10%的内存被“浪费”。</p>
+<p>但是二分查找必须要求数组是有序的，因此顺序表的存储、插入和删除都非常耗时。所以，基于二分查找的顺序表已经建立，一般不要做大的修改。</p>
 </li>
-<li><p><strong>老年代GC算法</strong></p>
-<p>老年代的对象存活时间比较长，对象存活率也比较高，如果老年代也采用复制算法进行老年代的GC，则要进行较多的复制操作，效率会变低。所以在老年代一般不采用这个算法。</p>
-<p>根据老年代的特点，人们提出了“标记-整理”算法。过程与标记-清除算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存。</p>
-<p><img src="./bzzl.png" alt="bzzl"></p>
+<li><p>分块查找</p>
+<p>既然顺序查找、二分查找各有优点，是不是可以将他们俩结合到一起，这就是所谓的分块查找。</p>
+<p>其基本思想是：顺序表的可以分为很多块，每块内的元素不一定是有序的，但是块与块之间必须是有序的。例如，第一块内所有元素的关键字值均小于第二块中所有元素的关键字值，相应的，第二块与第三块之间也满足这个关系。</p>
+<p>为实现分块查找，还必须建立一个索引表，将每一块中最大（最小）关键字的值和块的索引均存放在这个索引表中。如下图：</p>
+<p><img src="http://image.lxway.com/upload/1/c1/1c13615a1fa90dc522b1d6da1eb460a2_thumb.png" alt="分块查找"><br>其代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">IndexBlock</span></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">int</span> key;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">int</span> startIndex;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">blockSearch</span><span class="params">(<span class="keyword">int</span>[] array,IndexBlock[] indexBlockArray,<span class="keyword">int</span> k)</span></span>&#123;</div><div class="line">    <span class="keyword">int</span> low = <span class="number">0</span>, high = indexBlockArray.length-<span class="number">1</span>;</div><div class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</div><div class="line">    <span class="comment">//二分查找块索引</span></div><div class="line">    <span class="keyword">while</span> (low &lt;= high)&#123;</div><div class="line">        <span class="keyword">if</span> (high == <span class="number">0</span>)&#123;</div><div class="line">            i = <span class="number">0</span>;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> mid = (low+high)/<span class="number">2</span>;</div><div class="line">        <span class="keyword">if</span> (indexBlockArray[mid-<span class="number">1</span>].key &lt; k &amp;&amp; k &lt;= indexBlockArray[mid].key)&#123;</div><div class="line">            i = mid;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (indexBlockArray[mid].key &lt; k)&#123;</div><div class="line">            low = mid+<span class="number">1</span>;</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (indexBlockArray[mid-<span class="number">1</span>].key &gt; k)&#123;</div><div class="line">            high = mid-<span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (low &gt; indexBlockArray.length-<span class="number">1</span>)&#123;</div><div class="line">           <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//顺序查找</span></div><div class="line">    <span class="keyword">if</span> (i == indexBlockArray.length-<span class="number">1</span>)&#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = indexBlockArray[i].startIndex; j &lt; indexBlockArray.length-<span class="number">1</span>; j++)&#123;</div><div class="line">            <span class="keyword">if</span> (indexBlockArray[j] == k)&#123;</div><div class="line">                <span class="keyword">return</span> j;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = indexBlockArray[i].startIndex; </div><div class="line">             j &lt; indexBlockArray[i+<span class="number">1</span>].startIndex; j++)&#123;</div><div class="line">          <span class="keyword">if</span> (indexBlockArray[j] == k)&#123;</div><div class="line">                <span class="keyword">return</span> j;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>$$<br>分块查找的平均才查找长度为：ASL=L<em>{b}+L</em>{s}\\<br>其中，L<em>{b}为查找索引表确定记录所在块的平均查找长度，L</em>{s}为在该块中超找到该条记录的平均查找长度<br>$$</p>
 </li>
 </ol>
-<p>解决完这垃圾回收的3个基本问题，就可以设计相应的垃圾收集器了，下面罗列一下JVM常用的垃圾收集器：</p>
-<ul>
-<li>Serial收集器：新生代收集器，使用复制算法，使用一个线程进行GC，串行，其它工作线程暂停。</li>
-<li>ParNew收集器：新生代收集器，使用复制算法，Serial收集器的多线程版，用多个线程进行GC，并行，其它工作线程暂停。使用-XX:+UseParNewGC开关来控制使用ParNew+Serial Old收集器组合收集内存；使用-XX:ParallelGCThreads来设置执行内存回收的线程数。</li>
-<li>Parallel Scavenge 收集器：吞吐量优先的垃圾回收器，作用在新生代，使用复制算法，关注CPU吞吐量，即运行用户代码的时间/总时间。使用-XX:+UseParallelGC开关控制使用Parallel Scavenge+Serial Old收集器组合回收垃圾。</li>
-<li>Serial Old收集器：老年代收集器，单线程收集器，串行，使用标记整理算法，使用单线程进行GC，其它工作线程暂停。</li>
-<li>Parallel Old收集器：吞吐量优先的垃圾回收器，作用在老年代，多线程，并行，多线程机制与Parallel Scavenge差不错，使用标记整理算法，在Parallel Old执行时，仍然需要暂停其它线程。</li>
-<li>CMS（Concurrent Mark Sweep）收集器：老年代收集器，致力于获取最短回收停顿时间（即缩短垃圾回收的时间），使用标记清除算法，多线程，优点是并发收集（用户线程可以和GC线程同时工作），停顿小。使用-XX:+UseConcMarkSweepGC进行ParNew+CMS+Serial Old进行内存回收，优先使用ParNew+CMS（原因见Full GC和并发垃圾回收一节），当用户线程内存不足时，采用备用方案Serial Old收集。</li>
-<li>G1(Garbage-First)收集器，当今最优秀的垃圾收集器，JDK1.7以上默认的垃圾收集器，面向服务端。</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;哪些内存需要回收&lt;/li&gt;
-&lt;li&gt;什么时候回收&lt;/li&gt;
-&lt;li&gt;如何回收&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;这里
-    
-    </summary>
-    
-    
-      <category term="JVM" scheme="http://liuguochao.github.io/tags/JVM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>命令模式</title>
-    <link href="http://liuguochao.github.io/2017/03/20/Java%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/"/>
-    <id>http://liuguochao.github.io/2017/03/20/Java命令模式/</id>
-    <published>2017-03-20T09:35:58.000Z</published>
-    <updated>2017-03-20T12:35:58.463Z</updated>
-    
-    <content type="html"><![CDATA[<p>假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。</p>
-<p>现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&gt; 柜台服务员记录下来（创建命令） -&gt; 服务员把小票扔给厨房 -&gt; 厨师C很快做好了一碗面（请求被执行）</p>
-<p>顾客不知道将由谁来做这碗面，柜台服务员也不知道，厨师不知道是谁点了这碗面，只知道做完面就可以休息了</p>
-<p>首先定义一个命令接口，使得所有的具体命令都实现该接口：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Command</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//来一碗面条</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoodlesCommand</span> <span class="keyword">implements</span> <span class="title">Command</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> Chef chef;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">NoodlesCommand</span><span class="params">()</span></span>&#123;</div><div class="line">        chef = <span class="keyword">new</span> NoodlesChef();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute</span><span class="params">()</span></span>&#123;</div><div class="line">        chef.cook();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//来一张饼</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PieCommand</span> <span class="keyword">implements</span> <span class="title">Command</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> Chef chef;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PieCommand</span><span class="params">()</span></span>&#123;</div><div class="line">        chef = <span class="keyword">new</span> PieChef();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute</span><span class="params">()</span></span>&#123;</div><div class="line">        chef.cook();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>再定义一个抽象的执行者，所有的执行者均继承于该执行者</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Chef</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">cook</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//做面条的厨师</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoodlesChef</span> <span class="keyword">extends</span> <span class="title">Chef</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cook</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"做好了一碗面条"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//做饼的厨师</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PieChef</span> <span class="keyword">extends</span> <span class="title">Chef</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cook</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"做好了一张饼"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>客户端测试：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"Command Pattern餐馆开张。。"</span>);</div><div class="line">        System.out.println(<span class="string">"第一位客户X先生"</span>);</div><div class="line">        System.out.println(<span class="string">"X先生：你好，我需要一碗面，我饿极了"</span>);</div><div class="line">        NoodlesCommand nCmd = <span class="keyword">new</span> NoodlesCommand();<span class="comment">//请求者不知道到底是谁做的面条，只是下达命令</span></div><div class="line">        System.out.println(<span class="string">"柜台服务员：好的，我已经记下了，马上就好"</span>);</div><div class="line">        System.out.println(<span class="string">"柜台服务员：厨房~~,接单"</span>);</div><div class="line">        nCmd.execute();<span class="comment">//服务员控制执行的具体时间</span></div><div class="line">        System.out.println(<span class="string">"X先生：真快啊！"</span>);</div><div class="line">         </div><div class="line">        System.out.println();</div><div class="line">         </div><div class="line">        System.out.println(<span class="string">"第二位客户XX先生"</span>);</div><div class="line">        System.out.println(<span class="string">"XX先生：你好，我需要一块饼，20分钟后来取"</span>);</div><div class="line">        PieCommand pCmd = <span class="keyword">new</span> PieCommand();</div><div class="line">        System.out.println(<span class="string">"柜台服务员：好的，我已经记下了"</span>);</div><div class="line">        System.out.println(<span class="string">"15分钟后"</span>);</div><div class="line">        System.out.println(<span class="string">"柜台服务员：厨房~~,接单"</span>);</div><div class="line">        pCmd.execute();</div><div class="line">        System.out.println(<span class="string">"XX先生：真准时啊！"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="动态查找表"><a href="#动态查找表" class="headerlink" title="动态查找表"></a>动态查找表</h4><p>动态查找表的底层存储是用树形结构实现的</p>
 <ol>
-<li><p>假如现在需求改变，顾客下了一个单，服务员将单子给厨房的某个厨师，厨师吩咐底下的小工去切菜，切肉，小工发现菜不够了，打电话给小贩送菜……，这样多级命令的调用——宏命令（多条命令顺序执行）怎么实现？</p>
-<p>实现的话，仅需在原始的具体Command的excute方法中调用下一条具体Command的excute方法，下一条具体Command的excute方法，再调用下下一条具体Command的excute方法，碰到具体的执行者，就调用执行者相关的执行方法。</p>
+<li><p>二叉排序树</p>
+<p>二叉排序树是一种树形存储结构，如下图所示：</p>
+<p><img src="http://pic002.cnblogs.com/images/2012/457289/2012110918051618.jpg" alt="二叉排序树"><br>它具有以下性质：</p>
+<ol>
+<li>若它的左子树不空，则左子树上所有结点的值均小于它的根结点的值</li>
+<li>若它的右子树不空，则右子树上所有结点的值均大于它的根结点的值</li>
+<li>它的左、右子树也分别为二叉排序树</li>
+</ol>
+<p>二叉树的查找过程和二分查找比较相似，其步骤可以总结如下：</p>
+<ol>
+<li>若给定值k等于根节点的关键字值，则查找成功，结束查找。否则转入步骤2</li>
+<li>若给定值k小于根节点的关键字值，则继续在其非空左子树上进行查找，否则转入步骤3</li>
+<li>若给定值k大于根节点的关键字值，则继续在其非空右子树上进行查找</li>
+</ol>
+<p>相应的代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//查找到返回1，未查到返回-1</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">binarySearchTreeSearch</span><span class="params">(BinSearchTreeNode root,<span class="keyword">int</span> k)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span>)&#123;</div><div class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (root.getData() == k)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(root.getData() &lt; k)&#123;</div><div class="line">        <span class="keyword">return</span> binarySearchTreeSearch(root.getLeftChild(),k);</div><div class="line">    &#125; <span class="keyword">else</span>&#123;</div><div class="line">        <span class="keyword">return</span> binarySearchTreeSearch(root.getRightChild(),k);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>$$<br>二叉排序树的平均查找长度为：AVL=log<em>{2}n+1\\<br>因此其平均时间复杂度为O(log</em>{2}n)<br>$$</p>
+<p>二叉排序树的查找比较容易实现，但是其插入和删除操作却比较难，下面给出其代码：</p>
+<ol>
+<li><p>插入</p>
+<p>假设带插入节点的关键字值为k，分两种情况：</p>
+<ul>
+<li>若插入的关键字k在树中存在，则不用插入</li>
+<li>若不存在，则将其作为叶子节点插入到树中</li>
+</ul>
 </li>
-<li><p>加入现在需求又发生改变，假如来了很多顾客，点了很多份餐点，过了一会儿有几个顾客等不及了需要撤销，我们如何实现？</p>
-<p>这个也比较容易实现，只需在Command接口中添加一个undo()方法就行了。</p>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//插入</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">binarySearchTreeInsert</span><span class="params">(BinSearchTreeNode root,<span class="keyword">int</span> k)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (root == <span class="keyword">null</span>)&#123;</div><div class="line">        root = <span class="keyword">new</span> BinSearchTreeNode(k);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        BinSearchTreeNode current = root;</div><div class="line">        BinSearchTreeNode parent = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">while</span> (current != <span class="keyword">null</span>)&#123;</div><div class="line">            parent = current;</div><div class="line">            <span class="keyword">if</span> (current.getData() == k)&#123;</div><div class="line">                System.out.println(<span class="string">"k已经存在，不用插入"</span>);</div><div class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (current.getData() &gt; k)&#123;</div><div class="line">                current = current.getLeftChild();</div><div class="line">                <span class="keyword">if</span> (current == <span class="keyword">null</span>)&#123;</div><div class="line">                    current = <span class="keyword">new</span> BinSearchTreeNode(k);</div><div class="line">                    parent.setLeftChild(current);</div><div class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span>&#123;</div><div class="line">                current = current.getRightChild();</div><div class="line">                <span class="keyword">if</span> (current == <span class="keyword">null</span>)&#123;</div><div class="line">                    current = <span class="keyword">new</span> BinSearchTreeNode(k);</div><div class="line">                    parent.setLeftChild(current);</div><div class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//删除</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">binarySearchTreeDelete</span><span class="params">(BinSearchTree root,<span class="keyword">int</span> k)</span></span>&#123;</div><div class="line">    BinSearchTree current = root;</div><div class="line">    BinSearchTree parent = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">boolean</span> isLeftChild = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">if</span> (current == <span class="keyword">null</span>)&#123;</div><div class="line">        System.out.println(<span class="string">"空树，无法删除"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">while</span> (current != <span class="keyword">null</span>)&#123;</div><div class="line">            <span class="keyword">if</span> (current.getData() == k)&#123;</div><div class="line">                <span class="keyword">return</span> binarySearchTreeDelete(current,parent,isLeft);</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (current.getData() &gt; k)&#123;</div><div class="line">                isLeftChild = <span class="keyword">true</span>;</div><div class="line">                parent = current;</div><div class="line">                current = current.getLeftChild();</div><div class="line">            &#125; <span class="keyword">else</span>&#123;</div><div class="line">                isLeftChild = <span class="keyword">false</span>;</div><div class="line">                parent = current;</div><div class="line">                current = current.getRightChild();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        System.out.println(<span class="string">"未找到关键字值等于k的节点，无法删除"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">binarySearchTreeDelete</span><span class="params">(BinSearchNode current,BinsearchNode parent,isLeft)</span></span>&#123;</div><div class="line">    <span class="comment">//既没有左子树，也没有左子树，即该节点为叶子节点,直接删除即可</span></div><div class="line">    <span class="keyword">if</span> (current.getRightChild() == <span class="keyword">null</span> &amp;&amp; current.getRightChild() == <span class="keyword">null</span>)&#123;</div><div class="line">        <span class="keyword">if</span> (parent == <span class="keyword">null</span>)&#123;</div><div class="line">            current = <span class="keyword">null</span>;<span class="comment">//删除根节点</span></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(isLeft)&#123;</div><div class="line">            parent.setLeftChild(<span class="keyword">null</span>);</div><div class="line">        &#125; <span class="keyword">else</span>&#123;</div><div class="line">            parent.setRightChild(<span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (current.getRightChild() == <span class="keyword">null</span>)&#123;</div><div class="line">        <span class="comment">//只有左子树，没有右子树，直接将其左子树的根节点替代被删除节点的位置即可</span></div><div class="line">        <span class="keyword">if</span> (parent == <span class="keyword">null</span>)&#123;</div><div class="line">            current = current.getLeftChild();<span class="comment">//删除根节点</span></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(isLeft)&#123;</div><div class="line">            parent.setLeftChild(current.getLeftChild());</div><div class="line">        &#125; <span class="keyword">else</span>&#123;</div><div class="line">            parent.setRightChild(current.getLeftChild());</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (node.getLeftChild() == <span class="keyword">null</span>)&#123;</div><div class="line">        <span class="comment">//只有右子树，没有左子树，直接将其右子树的根节点替代被删除节点的位置即可</span></div><div class="line">        <span class="keyword">if</span> (parent == <span class="keyword">null</span>)&#123;</div><div class="line">            current = current.getRightChild();</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isLeft)&#123;</div><div class="line">            parent.setLeftChild(current.getRightChild());</div><div class="line">        &#125; <span class="keyword">else</span>&#123;</div><div class="line">            parent.setRightChild(current.getRightChild());</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">//左右子树都存在</span></div><div class="line">        BinSearchNode needNode = getNeedNode(current);</div><div class="line">        <span class="keyword">if</span> (parent == <span class="keyword">null</span>)&#123;</div><div class="line">            current = needNode;</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isLeftChild)&#123;</div><div class="line">            parent.setLeftChild(needNode);</div><div class="line">        &#125; <span class="keyword">else</span>&#123;</div><div class="line">            parent.setRightChild(needNode);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (needNode != current.getRightChild())&#123;</div><div class="line">            needNode.setRightChild(current.getRightChild());</div><div class="line">        &#125;</div><div class="line">        needNode.setLeftchild(current.getLeftChild());</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">private</span> BinSearchNode <span class="title">getNeedNode</span><span class="params">(BinSearchNode delNode)</span> </span>&#123;   </div><div class="line">        BinSearchNode current = delNode.getRightChild();      </div><div class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (current.getLeftChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                current = current.getLeftChild();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125; </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span> current;  </div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>​</p>
+<p>如果二叉树是平衡的，那么n个节点的二叉排序树的查找是最优的；但是如果二叉树是严重不平衡的话，其查找时间复杂度可以为O(n)，如下图的二叉排序树：</p>
+<p><img src="http://hiphotos.baidu.com/juds/pic/item/f0427ecfdc820337f8dc61ab.jpg" alt="二叉排序树比较"></p>
 </li>
-<li><p>加入现在需求有改变，这次不是餐馆，比如你要做一个文本编辑器，用户发出了一系列的命令，完成了一些操作，后来发现操作有问题，想要撤销操作N次，怎么支持多步顺序撤销？</p>
-<p>这次我们需要维护一个命令表，且支持“后入先出”的原则，因此我们可以用一个栈来存放相应的指令，如果想要撤销指令的话，就从栈中弹出相应的指令即可。</p>
+<li><p>平衡二叉树</p>
+<p>二叉排序树的性能和树的形态有很大的关系。因此，在构造二叉排序树的过程中，当出现左右子树不平衡时，应该对其进行调整，这样才能保证二叉排序树的最优查找性能，即所谓的平衡二叉树。</p>
+<p>平衡二叉树（Balanced Binary Tree）定义：它是一棵空树，或是具有以下性质的一棵二叉树，即左子树和右子树都是平衡二叉树，且左右子树的深度之差不超过1。平衡二叉树也叫AVL树。</p>
+</li>
+<li><p>B_树和B+树</p>
+<p>虽然平衡二叉树最好和最差的查找效率都为O(log(n))，但是当数据量非常大的时候，查找起来效率还是很低。较大规模的数据记录一般都存放外存中，对于磁盘的IO操作是非常费时的，因此应该尽可能地降低磁盘IO的次数，此时可以将平衡二叉树拓展为平衡“多叉”树，即所谓的平衡多路查找树。</p>
+<p>例如：若将存放在外存中的10亿条记录组织为平衡二叉树，则每次访问平均需要30次外存访问，而如果采用256阶(256^4 &gt; 10亿)的B_树组织，每次访问记录仅需访问4次（256^4 &gt;10亿）即可。</p>
+<ol>
+<li><p>B_树</p>
+<p>B_树是一种平衡的多路查找树，一棵m阶（m&gt;=3）阶的B树，或为空树，或者是具有以下性质的树：</p>
+<ul>
+<li><p>树种每个节点至多有m棵子树</p>
+</li>
+<li><p>若根节点不是叶子节点，则至少有2棵子树</p>
+</li>
+<li><p>所有的非终端节点中包含下列信息：<br>$$<br>(n,p<em>{0},k</em>{1},p<em>{1},k</em>{2},p<em>{2},…,k</em>{n},p<em>{n})\\<br>其中，n为关键字的个数，k</em>{i}为关键字，且满足k<em>{i}&lt;k</em>{i+1}；p<em>{j}为指向子树根节点的指针，且p</em>{j}所指子树的\\<br>关键字值均小于k<em>{j+1}，p</em>{n}所指子树中所有节点的关键字值均大于k_{n}.<br>$$</p>
+</li>
+<li><p>除根节点之外所有的非终端节点至少有[m/2]棵子树，也即每个非根节点至少应有[m/2]-1个关键字</p>
+</li>
+<li><p>所有的叶子节点都出现在同一层次上，并且不带任何信息</p>
+</li>
+</ul>
+<p><img src="http://kugames.youku.com/dtt/wp-content/uploads/2015/11/4.jpg" alt="B_树"></p>
+</li>
+<li><p>B+树</p>
+<p>B_树和B+树都是B树的一种实现，一棵m阶的B+树相比B-树差异在于：</p>
+<ul>
+<li>在B-树中，每个节点有n个关键字和n+1棵子树；而在B+树中，每一个节点有n个关键字和n棵子树，即每一关键字对应一棵子树</li>
+<li>在B-树中，每个节点关键字的个数n的取值为[m/2-1]&lt;=n&lt;=[m-1]；而在B+树中，n的取值为[m/2]&lt;=n&lt;=m</li>
+<li>B+树中所有非叶子节点仅起到索引的作用，即节点中的每一索引项只含有对应子树的最大关键字和指向该子树的指针，不包含该关键字对应记录的存储地址</li>
+</ul>
+<p><img src="http://kugames.youku.com/dtt/wp-content/uploads/2015/11/5.jpg" alt="B+树"><br>相比于B-树，B+树更适合于文件索引系统</p>
+<h3 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h3></li>
+</ol>
+</li>
+</ol>
+<p>线性表、二叉排序树、平衡二叉树、B_树等数据结构，数据元素存储在内存空间的位置与数据元素的关键字之间不存在直接的确定关系，因此其查找的时间复杂度不会小于O(log(n))。</p>
+<p>而哈希表则建立了数据元素关键字与存储位置之间的相关关系。其基本思想为：</p>
+<ol>
+<li>以关键字为自变量，通过一定的函数关系（hash函数），计算出对应的函数值(hash值)，以这个值作为数据元素的存储地址。</li>
+<li>查找时根据待查找的关键字采用同样的hash函数计算出相应的存储地址，直接利用存储地址就可以快速取出元素，其查找效率接近于O(1)。</li>
+</ol>
+<p>哈希表查找的方式需要解决好以下两个问题：</p>
+<ol>
+<li>hash函数应尽可能简单，以便减少hash计算的时间复杂度</li>
+<li>hash函数应使得关键字映射后的地址值分布尽量均匀，以避免存储空间的浪费</li>
+</ol>
+<h4 id="常用的hash函数"><a href="#常用的hash函数" class="headerlink" title="常用的hash函数"></a>常用的hash函数</h4><p>hash函数非常多，这里仅选择几个我认为比较常用的</p>
+<ol>
+<li><p>取模法<br>$$<br>H(key)=key\ \%\ p<br>$$<br>其中p的选取非常重要，若p的选择不当，会造成严重的hash值冲突。一般若地址值个数为m，则p选择为小于或等于m的某个最大素数。如下表：</p>
+<p>| 哈希表长度（m)  |  8   |  16  |  32  |  64  | 128  | 256  | 512  |<br>| ——— | :–: | :–: | :–: | :–: | :–: | :–: | :–: |<br>| <strong>模数(p)</strong> |  7   |  13  |  31  |  61  | 127  | 251  | 503  |</p>
+<p>我们知道在java中想要比较两个对象，一般需要重写hashCode()方法和equals()方法，例如:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">int</span> studentNum;</div><div class="line">	<span class="keyword">private</span> String name;</div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">final</span> <span class="keyword">int</span> prime = <span class="number">31</span>;</div><div class="line">		<span class="keyword">int</span> result = <span class="number">1</span>;</div><div class="line">		result = prime * result + ((name == <span class="keyword">null</span>) ? <span class="number">0</span> : name.hashCode());</div><div class="line">		result = prime * result + studentNum;</div><div class="line">		<span class="keyword">return</span> result;</div><div class="line">	&#125;</div><div class="line">    <span class="comment">//省略equals</span></div><div class="line">	....</div><div class="line">&#125;</div><div class="line"><span class="comment">//java自带的hashcode()方法如下：</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> h = hash;</div><div class="line">        <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">char</span> val[] = value;</div><div class="line"></div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; value.length; i++) &#123;</div><div class="line">                h = <span class="number">31</span> * h + val[i];</div><div class="line">            &#125;</div><div class="line">            hash = h;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> h;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>从上面我们发现p的取值就是31，网上的很多解释都是说为了简化计算等，其实就是hash()函数取模数的一种规范而已，虽然这里没有用取模法计算hash值，但是以素数作为基底，能够保证得到的结果唯一性的可能性更大。</p>
+</li>
+<li><p>平方取中法</p>
+<p><strong>平方取中法</strong>(Middle-square method)是个产生<a href="http://baike.baidu.com/item/%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%95%B0" target="_blank" rel="external">伪随机数</a>的方法，由冯·诺伊曼在<a href="http://baike.baidu.com/item/1946%E5%B9%B4" target="_blank" rel="external">1946年</a>提出（百科），其实目的也是尽可能使得hash之后的值分布分散。</p>
+<p>这里是取关键字平方的中间几位作为hash值，具体选取多少需要视实际情况而定。一般适用于关键字每一位取值不够分散后者分散的位数小于hash地址所需要的位数的情况。现在基本上已经淘汰。</p>
+</li>
+<li><p>折叠法</p>
+<p>将关键字分割成位数相同的几部分，最后一部分位数可以不同，然后取这几部分的叠加和（去除进位）作为散列地址，常用的有移位叠加法和间界叠加法。</p>
+<p>具体请百度，实在不想写了。。。。</p>
+<p>​</p>
 </li>
 </ol>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。&lt;/p&gt;
-&lt;p&gt;现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&amp;gt;
+      &lt;p&gt;查找是最基本的算法之一，在日常的编程中也经常会遇到。因此经常会被拿来作为面试题。今天就总结一下查找的一些基本概念和算法，帮助自己梳理这块东西的复习。&lt;/p&gt;
+&lt;h4 id=&quot;先复习几个概念吧：&quot;&gt;&lt;a href=&quot;#先复习几个概念吧：&quot; class=&quot;headerlink&quot;
     
     </summary>
     
     
-      <category term="设计模式" scheme="http://liuguochao.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="算法" scheme="http://liuguochao.github.io/tags/%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
-    <title>策略模式</title>
-    <link href="http://liuguochao.github.io/2017/03/20/Java%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
-    <id>http://liuguochao.github.io/2017/03/20/Java策略模式/</id>
-    <published>2017-03-20T09:35:58.000Z</published>
-    <updated>2017-03-20T11:39:19.538Z</updated>
+    <title>二叉树</title>
+    <link href="http://liuguochao.github.io/2017/03/21/%E4%BA%8C%E5%8F%89%E6%A0%91/%E4%BA%8C%E5%8F%89%E6%A0%91/"/>
+    <id>http://liuguochao.github.io/2017/03/21/二叉树/二叉树/</id>
+    <published>2017-03-21T03:21:59.000Z</published>
+    <updated>2017-03-25T07:58:17.151Z</updated>
     
-    <content type="html"><![CDATA[<p>策略模式用一句话概括就是<strong>“面向接口编程”</strong>，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。</p>
-<p>借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：</p>
-<p>你是某游戏公司的软件工程师Joe，现在有个打鸭子的游戏要做，因为鸭子种类很多（假如确实非常多，包括假的鸭子），你这样定义鸭子类：</p>
-<p><img src="http://img.blog.csdn.net/20150321104828964?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Duck</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子叫</span></div><div class="line">        System.out.println(<span class="string">"quack!quack!"</span>)</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子游泳</span></div><div class="line">        System.out.println(<span class="string">"duck swiming!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//定义鸭子的外观，因为不同鸭子的外观不同，因此定义为抽象方法，让子类去重写</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">diplay</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//定义几个子类</span></div><div class="line"><span class="keyword">public</span> MallardDuck extends Duck&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">diplay</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"我是绿头鸭！"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> RedHeadDuck extends Duck&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"我是红头鸭！"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">.......</div></pre></td></tr></table></figure>
-<p>当你做好了这些类以后，产品经理有一天对你说，现在要为每种鸭子添加飞的功能。你觉得作为一个OO软件开发的人来说太easy了，于是你用继承在Duck添加了fly方法如下：</p>
-<p><img src="http://img.blog.csdn.net/20150321105123154?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Duck</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子叫</span></div><div class="line">        System.out.println(<span class="string">"quack!quack!"</span>)</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子游泳</span></div><div class="line">        System.out.println(<span class="string">"duck swiming!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子飞</span></div><div class="line">        System.out.println(<span class="string">"duck flying!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//定义鸭子的外观，因为不同鸭子的外观不同，因此定义为抽象方法，让子类去重写</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">diplay</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//其他子类继承Duck</span></div><div class="line">...</div></pre></td></tr></table></figure>
-<p>正当你为自己的速度感到相当有成就感的时候，产品经理黑着脸过来，“为什么玩具鸭子也会飞啊！”。。(这里是因为后来添加了一个玩具鸭子类，继承于你写的基类Duck，并不怪你，需求改变了。。。)</p>
-<p>但聪明的你很快想到了面向对象的方法覆盖，把不会飞的鸭子的fly方法重写一下不就行了。</p>
-<p>但是产品经理又一次黑着脸。。“如果以后添加很多鸭子，有些不会飞，有些不会叫，有些都不会，你倒一个个给我改试试看！？”。。。(对产品经理无语，你刚开始说不是鸭子都会飞，都会叫的嘛。。。。。。，但你身为一个苦逼的程序猿，必须改改改)</p>
-<p>这时你意识到，需要一个更清晰的方法让鸭子指定可以飞或者可以叫。</p>
-<p>不是有接口么？让会飞的实现飞的接口，会叫的实现叫的接口不就行了？</p>
-<p><img src="http://img.blog.csdn.net/20150321110236139?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>这时黑着脸的产品经理再次出现。。“你这样重复代码不得很多么？！以后要改某些鸭子的飞行行为不是得一个个改？！”。。(挨千刀的产品经理。。。。。，谁让你乱改需求的，一会这个鸭子飞慢点，一会这个鸭子飞快点，一会儿这些鸭子不飞了，但是身为受人尊敬的程序猿，你怎么能在产品经理面前低头呢，于是你说好（妈）办（的）！)</p>
-<p>于是你去深山中拜访大师，大师就吐了一句话：“<strong>找出应用中可能需要变化之处，把它们独立出来，不要和那些不需要变化的代码混在一起。</strong>”。</p>
-<p>大师一语惊醒梦中人，于是你很快想到：为了要分开“变化和不会变化的部分”，我们准备建立<strong>两组类</strong>（完全远离Duck类），一个是“fly”相关的，一个是“quack”相关的，每一组类将实现各自的动作。比方说，我们可能有一个类实现“呱呱叫”，另一个类实现“吱吱叫”，还有一个类实现“安静”。我们知道Duck类内的fly()和quack()会随着鸭子的不同而改变。为了要把这两个行为从Duck类中分开，我们将把它们从Duck类中取出来，建立一组新类来代表每个行为。</p>
-<p>那如何设计那组实现飞行和呱呱叫的行为的类呢？你想不懂，于是打了个电话给山林中的大师，深沉的大师又只说了一句：“<strong>针对接口编程，而不是针对实现编程</strong>。“</p>
-<p>你果然聪明人，一点就破，立刻想出如下方法：</p>
-<p>从现在开始，鸭子的行为将被放在分开的类中，此类专门提供某行为接口的实现。</p>
-<p>这样，鸭子类就不再需要知道行为的实现细节。在新设计中，鸭子的子类将使用接口（FlyBehavior与QuackBehavior）所表示的行为，所以实际的“实现”不会被绑死在鸭子的子类中。像这样：</p>
-<p><img src="http://img.blog.csdn.net/20150321111809177?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img">其实“针对接口编程”真正的意思是“针对超类型（supertype）编程”。这里所谓的“接口”有多个含义，接口是一个“概念”,“针对接口编程”，关键就在多态。利用多态，针对超类型编程，执行时会根据实际状况执行到真正的行为，不会被绑死在具体的行为上。</p>
-<p>你有很快懂了。你这么做：</p>
-<p><img src="http://img.blog.csdn.net/20150321112834338?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
-<p>根据以上分析，于是你一鼓作气写出如下代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//基类Duck</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> Duck&#123;</div><div class="line">    FlyBehavior flyBehavior;</div><div class="line">    QuackBehavior quackBehavior;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">performQuack</span><span class="params">()</span></span>&#123;</div><div class="line">        quackBehavior.quack();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">performFly</span><span class="params">()</span></span>&#123;</div><div class="line">        flyBehavior.flfly();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"duck swiming"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlyBehavior</span><span class="params">(FlyBehavior fb)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.flyBehavior = fb;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setQuackBehavior</span><span class="params">(QuackBehavior qb)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.quackBehavior = qb;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//fly,duck接口</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FlyBehavior</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">QuackBehavior</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//飞行的具体实现类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlyWithWings</span> <span class="keyword">implements</span> <span class="title">FlyBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"Duck flying with wings"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlyNoway</span> <span class="keyword">implements</span> <span class="title">FlyBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"Duck can't fly"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//叫的具体实现类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommonQuack</span> <span class="keyword">implements</span> <span class="title">QuackBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"quack,quack!"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MuteQuack</span> <span class="keyword">implements</span> <span class="title">QuackBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"I can't quack"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">....</div><div class="line"><span class="comment">//测试类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MiniDuck</span> <span class="keyword">extends</span> <span class="title">Duck</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MiniDuck</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.flyBehavior = <span class="keyword">new</span> FlyWithWings();</div><div class="line">        <span class="keyword">this</span>.quackBehavior = <span class="keyword">new</span> CommonQuack();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"I am a mini duck"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//客户端调用代码</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        Duck miniDuck = <span class="keyword">new</span> MiniDuck();</div><div class="line">        miniduck.performQuack();<span class="comment">//输出"quack,quack"</span></div><div class="line">        miniDuck.periformFly();<span class="comment">//输入“Duck fly with wings"</span></div><div class="line">        <span class="comment">//突然产品经理说，现在所有的miniduck不能飞了</span></div><div class="line">        miniDuck.setFlyBehavior(<span class="keyword">new</span> FlyNoway());<span class="comment">//现在所有的鸭子都不能飞了，这样就实现了动态的改变鸭                                                 // 子的各种行为了</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><strong>总结：</strong></p>
-<p>策略模式定义了算法族(每一算法族代表一种接口的一组具体实现类)，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户。（书上定义）</p>
-<p>自己的理解：</p>
-<p>策略模式的核心是要把频繁发生变化的部分封装起来，作用是把变化部分的影响隔离开，避免局部的变化对其它不变化部分造成影响，设计时可能需要更多的时间，但便于维护、复用与扩展。例如本例子中，Duck的fly行为和quack行为会经常性变化，那么就需要把这两种行为封装起来，做成独立的两组实现类，这两组实现类为了能够统一的调用，因此这两组类都是两个统一接口的具体实现，这样，鸭子的fly行为和quack行为就是抽象的，具体拥有何种行为则可以通过传入具体类的对象来动态修改。如果又增加了其他可变的方法，只需在基类中再定义一个类似的接口就行了。</p>
+    <content type="html"><![CDATA[<p>二叉树经常被用于快速查找，快速排序，在现实场景中应用广泛，因此经常会在面试中被问到。今天就系统的复习一下二叉树的一些基本操作。</p>
+<h3 id="二叉树的存储"><a href="#二叉树的存储" class="headerlink" title="二叉树的存储"></a>二叉树的存储</h3><p>二叉树的存储方式大致分为顺序存储和链式存储。</p>
+<p>顺序存储一般是用数组来存，存储密度比较高；但是存储之前需要按照某种遍历方式，先将二叉树的节点按照某种遍历方式遍历一遍；对于非完全二叉树，还需要储存虚节点的值，因此如果一棵树有大量的虚节点，则会造成大量的存储空间的浪费。因此，顺序存储结构非常适合满二叉树和完全二叉树的存储。</p>
+<p>链式存储一般用双向链表或者三叉链表来存储。所谓的双向链表指的是定义一个前指针指向左孩子节点，定义一个后指针指向右孩子节点。所谓的三叉链表指的是在双向链表的基础上再定义一个前指针指向父节点。链式存储具有和可以内存空间不连续，可以较好地保持树形结构的优点；缺点是存储密度比较低，get某个节点不方便。</p>
+<h3 id="二叉树的遍历"><a href="#二叉树的遍历" class="headerlink" title="二叉树的遍历"></a>二叉树的遍历</h3><p>二叉树的遍历根据访问根节点的顺序分为前序遍历（先根遍历），中序遍历（中根遍历），后序遍历（后根遍历）；如果按照二叉树节点所处的层次进行遍历，则有层次遍历。</p>
+<ol>
+<li>前序遍历：根节点- &gt;左子树- &gt;右子树</li>
+<li>中序遍历：左子树- &gt;根节点- &gt;右子树</li>
+<li>后序遍历：左子树- &gt;右子树- &gt;根节点</li>
+<li>层次遍历：从上到下，从左到右</li>
+</ol>
+<p>例如：求下面树的遍历</p>
+<p><img src="http://hi.csdn.net/attachment/201109/21/0_13166086420zyt.gif" alt="img"></p>
+<p>​                                                                                   （图1）</p>
+<p>前序遍历：abdefgc<br>中序遍历：debgfac<br>后序遍历：edgfbca<br>层次遍历：abcdfeg</p>
+<h4 id="相应的遍历递归实现为："><a href="#相应的遍历递归实现为：" class="headerlink" title="相应的遍历递归实现为："></a>相应的遍历递归实现为：</h4><figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//前序遍历的递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrderTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        System.out.print(t.getData() + <span class="string">" "</span>);<span class="comment">//访问根节点</span></div><div class="line">        preOrderTraverse(t.getLeftChild());<span class="comment">//访问左子树</span></div><div class="line">        preOrderTraverse(t.getRightChild());<span class="comment">//访问右子树</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//中序遍历的递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrderTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        inOrderTraverse(t.getLeftchild());</div><div class="line">        System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">        inOrderTraverse(t.getRightChild());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//后序遍历的递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        postOrderTraverse(t.getLeftChild());</div><div class="line">        postOrderTraverse(t.getRightChild());</div><div class="line">        System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>递归实现的树的遍历形式简洁，可读性强，但是由于递归需要调用系统堆栈，所以空间消耗比非递归代码大得多，而且，如果递归层次太深，会导致“爆栈”，因此需要将二叉树的递归遍历实现修改为非递归。</p>
+<h4 id="相应的遍历非递归实现为："><a href="#相应的遍历非递归实现为：" class="headerlink" title="相应的遍历非递归实现为："></a>相应的遍历非递归实现为：</h4><p>非递归遍历就需要用到循环，因此我们必须找到循环的开始条件和终止条件。分解二叉树前序遍历的过程，例如对图（1）的前序遍历结果为：abdefgc，因为递归的过程和栈有关，所以我们可以<strong>利用栈来模拟递归</strong>的过程。</p>
+<p>根据递归的过程，我们将其分为以下3个步骤：</p>
+<ol>
+<li>首先访问根节点，然后以根节点的左孩子节点作为新的“根节点”继续向下访问，直到最后一个小小子树的“根节点”没有左孩子节点为止；</li>
+<li>然后开始找寻该“根节点”的右孩子，如果存在，以右孩子作为新的“根节点”，重复以上寻找“根节点”的过程；如果没有，则回退到上一个“根节点”，找寻上一个“根节点”的右孩子节点，如果没有继续回退，直到找到一个”根节点”有右孩子节点为止；然后以右孩子节点作为“新的根节点”重复1,2这个过程。</li>
+<li>直到无法回退到任何一个根节点，或者找不到一个“根节点”，结束</li>
+</ol>
+<p>上面第一步找寻<strong>“新的根节点”</strong>的过程，可以抽象为入栈的过程，相应的找不到右孩子，回退到上一个“根节点”的过程，可以抽象为出栈的过程。</p>
+<p>相应的算法描述如下：</p>
+<ol>
+<li>创建一个栈对象，根节点入栈</li>
+<li>依次访问根节点的非空左孩子节点，并将当前访问节点压入栈</li>
+<li>若栈非空，弹出栈顶元素G，并将G节点的非空右孩子节点压入栈</li>
+<li>重复2,3，直到栈为空</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//前序遍历的非递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    Stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span> || !s.empty())&#123;</div><div class="line">        <span class="keyword">while</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">            <span class="comment">//将左子树</span></div><div class="line">            System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">            s.push(t);</div><div class="line">            t = t.getLeftChild();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (!s.empty())&#123;</div><div class="line">            t = s.pop();</div><div class="line">            t = t.getRightChild();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>模仿前序遍历的非递归过程，可以很容易的得到中序遍历的非递归过程<br><figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//中序遍历的非递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    Stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span> || !s.empty())&#123;</div><div class="line">        <span class="keyword">while</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">            s.push(t);</div><div class="line">            t = t.getLeftChild();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (!s.empty())&#123;</div><div class="line">            t = s.pop();</div><div class="line">            System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">            t = t.getRightChild();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>后续遍历的非递归实现比较复杂。因为后序遍历是先访问左子树，再访问右子树，最后访问根节点。但是在对树的搜索过程中，确是先从树的根节点出发，沿着该节点的左子树向下搜索，在搜索的过程中每遇到一个节点，需要判断该节点是否第一次被访问过，如果是，则不立即访问，而是将该节点入栈保存，遍历该节点的左子树，当左子树遍历完毕后再返回该节点，此时还不能访问该节点，还必须遍历完该节点的右子树，这样才能从栈中弹出该节点并访问它。</p>
+<p>由于在决定栈顶元素能否被访问时，需要知道该节点的右子树是否遍历完毕，为解决这个问题，需要引入一个布尔型的访问标记变量flag和一个节点指针p。其中，flag用来标记当前栈顶元素是否被访问过，指针p指向当前遍历工程中最后一个被访问的节点。若当前栈顶节点的右孩子节点是空，或者就是p指向的节点，则表明当前节点的右子树已经遍历完毕，此时就可以访问当前栈顶节点。</p>
+<p>相应的算法描述如下：</p>
+<ol>
+<li>创建一个栈对象，根节点入栈，p赋初值为null</li>
+<li>若栈非空，则栈顶节点的非空左孩子相继入栈</li>
+<li>若栈非空，查看栈顶节点，如果栈顶节点的右孩子为空，或者与p相等，则将栈顶节点弹出并访问它，同时使p指向该节点，并将flag赋为true；否则，将栈顶节点的右孩子节点压入栈，并将flag赋为false</li>
+<li>若flag为true，则重复执行步骤3，否则重复执行步骤2，3，直到栈为空</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//后序遍历的非递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    <span class="keyword">boolean</span> flag;</div><div class="line">    BinTree p = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span> &amp;&amp; !s.empty())&#123;</div><div class="line">        <span class="keyword">while</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">            <span class="comment">//①沿着左子树一直往下找，将栈顶节点的非空左孩子相继入栈</span></div><div class="line">            s.push(t);</div><div class="line">            t = t.getLeftChild();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">while</span> (!s.empty())&#123;</div><div class="line">            <span class="comment">//判断当前元素是否应该被访问</span></div><div class="line">            t = s.peek();</div><div class="line">            <span class="keyword">if</span> (t.getRightChild() == <span class="keyword">null</span> || t.getRightChild() == p)&#123;</div><div class="line">                System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">                flag = <span class="keyword">true</span>;<span class="comment">//标志栈顶元素已经被访问过</span></div><div class="line">                p = s.pop();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                t = t.getRightChild();</div><div class="line">                flag = <span class="keyword">false</span>;<span class="comment">//标记新的栈顶元素没有被访问</span></div><div class="line">            &#125;</div><div class="line">            <span class="comment">//若栈顶元素未被访问过，则重复①的入栈过程</span></div><div class="line">            <span class="keyword">if</span> (flag == <span class="keyword">false</span>)&#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>还有一种思路：要保证根结点在左孩子和右孩子访问之后才能访问，因此对于任一结点P，先将其入栈。如果P不存在左孩子和右孩子，则可以直接访问它；或者P存在左孩子或者右孩子，但是其左孩子和右孩子都已被访问过了，则同样可以直接访问该结点。若非上述两种情况，则<strong>将P的右孩子和左孩子依次入栈</strong>，这样就保证了每次取栈顶元素的时候，<strong>左孩子在右孩子前面被访问，左孩子和右孩子都在根结点前面被访问</strong>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    Stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    BinTree cur = t;<span class="comment">//当前访问节点</span></div><div class="line">    BinTree pre = <span class="keyword">null</span>;<span class="comment">//前一个访问节点</span></div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        s.push(t);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">while</span> (!s.empty())&#123;</div><div class="line">        cur = s.peek();</div><div class="line">        <span class="comment">//判断是否应该被访问</span></div><div class="line">        <span class="keyword">if</span> (cur.getLeftChild == <span class="keyword">null</span> &amp;&amp; cur.getRightChild == <span class="keyword">null</span> || </div><div class="line">            (pre != <span class="keyword">null</span> &amp;&amp; (pre == cur.getLeftChild || pre == cur.getRightChild())))</div><div class="line">          <span class="comment">//用或的原因是防止根节点只有左孩子或者只有右孩子</span></div><div class="line">        &#123;</div><div class="line">            System.out.print(cur.getData() + <span class="string">" "</span>);</div><div class="line">            pre = s.pop();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">//将栈顶元素的右孩子，左孩子相继入栈</span></div><div class="line">            <span class="keyword">if</span> (cur.getRightChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                s.push(cur.getRightChild());</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                s.push(cur.getLeftChild());</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="层次遍历的实现为："><a href="#层次遍历的实现为：" class="headerlink" title="层次遍历的实现为："></a>层次遍历的实现为：</h4><p>层次遍历，是先遍历上一层节点，再遍历下一层节点。如果将每一层抽象为一个数据项，则符合先入先出的原则。因此可以用一个队列来存放每一层的节点。</p>
+<p>相应的算法描述为：</p>
+<ol>
+<li>创建一个队列，根节点入队</li>
+<li>若队列非空，则将队首节点出队并访问该节点，再将该节点的非空左孩子，右孩子一次入队</li>
+<li>重复执行步骤2，直至队列为空</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//层次遍历实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">levelTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    BinTree cur = t;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        Queue&lt;BinTree&gt; q = <span class="keyword">new</span> LinkedList&lt;BinTree&gt;();</div><div class="line">        q.offer(t);<span class="comment">//根节点入队</span></div><div class="line">        <span class="keyword">while</span> (!q.isEmpty)&#123;</div><div class="line">            cur = q.poll();<span class="comment">//队首节点出队</span></div><div class="line">            System.out.print(cur.getData() + <span class="string">" "</span>);<span class="comment">//访问队首节点</span></div><div class="line">            <span class="keyword">if</span> (cur.getLeftChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                q.offer(cur.getLeftChild());</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (cur.getRightChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                q.offer(cur.getRightChild());</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="重建二叉树"><a href="#重建二叉树" class="headerlink" title="重建二叉树"></a>重建二叉树</h3><p>已知一棵二叉树，我们可以写出它的3种遍历，但是已知3种遍历其中之一能够重建一棵树吗？</p>
+<p>答案是否定的！原因可以如下图来解释：</p>
+<ul>
+<li><p>先序遍历序列的组成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">graph LR</div><div class="line">    SVN根((根))--&gt;左子树</div><div class="line">    左子树--&gt;右子树</div></pre></td></tr></table></figure>
+</li>
+<li><p>中序遍历序列的组成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">graph LR</div><div class="line">    左子树--&gt;SVN((根))</div><div class="line">    SVN((根))--&gt;右子树</div></pre></td></tr></table></figure>
+</li>
+<li><p>后序遍历序列的组成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">graph LR</div><div class="line">    左子树--&gt;右子树</div><div class="line">    右子树--&gt;SVN((根))</div></pre></td></tr></table></figure>
+<p>从图中可以看出，先序遍历或者后续能保持的是父节点与孩子节点之间的层次关系，而中序遍历能够保持兄弟节点之间的左右次序关系,所以仅仅根据一种二叉树的遍历结果是不能完全确定一棵树的。这里仅实现已知先序遍历和中序遍历，重建一棵树的方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> BinTree <span class="title">reConstructBinTree</span><span class="params">(<span class="keyword">int</span>[] preOrder,<span class="keyword">int</span>[] inOrder)</span></span>&#123;</div><div class="line">    BinTree binTree = </div><div class="line">      reConstructBinTree(preOrder,<span class="number">0</span>,preOrder.length-<span class="number">1</span>,inOrder,<span class="number">0</span>,inOrder.length-<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> BinTree <span class="title">reConstructBinTree</span><span class="params">(<span class="keyword">int</span>[] preOrder,<span class="keyword">int</span> preStart,<span class="keyword">int</span> preEnd,<span class="keyword">int</span>[] inOrder,<span class="keyword">int</span>[] inOrder,<span class="keyword">int</span> inStart,<span class="keyword">int</span> inEnd)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (preOrder == <span class="keyword">null</span> || inOrder == <span class="keyword">null</span> || preOrder.length == <span class="number">0</span> || inOrder.length == <span class="number">0</span>)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (preStart &lt; <span class="number">0</span> || endStart &lt; <span class="number">0</span> || preStart &gt; preEnd || inStart &gt; inEnd)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    BinTree root = newBinTree(preOrder[preStart]);</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = inStart; i &lt;= inEnd; i++)&#123;</div><div class="line">        <span class="keyword">if</span> (inOrder[i].equals(preOrder[preStart]))&#123;</div><div class="line">            root.setLeftChild = reConstructBinTree(preOrder,preStart+<span class="number">1</span>,preStart+i-preStart,inOrder,inStart,i-<span class="number">1</span>);</div><div class="line">            root.setRightChild = reConstructBinTree(preOrder,preStart+i+<span class="number">1</span>-inStart,preEnd,inOrder,i+<span class="number">1</span>,endIndex);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="求二叉树的深度"><a href="#求二叉树的深度" class="headerlink" title="求二叉树的深度"></a>求二叉树的深度</h3><p>二叉树的深度为左子树深度、右子树深度中的最大值加1。因此我们可以先求出左子树的深度，再求出右子树的深度，然后比较二者的深度大小，取最大值加1；这个过程是可以递归的，因此代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getDepth</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        <span class="keyword">int</span> leftDepth = getDepth(t.getLeftChild());</div><div class="line">        <span class="keyword">int</span> rightDepth = getDepth(t.getRightChild());</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span> + (leftDepth &gt; rightDepth ? leftDepth : rightDepth);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;策略模式用一句话概括就是&lt;strong&gt;“面向接口编程”&lt;/strong&gt;，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。&lt;/p&gt;
-&lt;p&gt;借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：&lt;/p&gt;
-&lt;p
+      &lt;p&gt;二叉树经常被用于快速查找，快速排序，在现实场景中应用广泛，因此经常会在面试中被问到。今天就系统的复习一下二叉树的一些基本操作。&lt;/p&gt;
+&lt;h3 id=&quot;二叉树的存储&quot;&gt;&lt;a href=&quot;#二叉树的存储&quot; class=&quot;headerlink&quot; title=&quot;二叉树的存储&quot;&gt;&lt;
     
     </summary>
     
     
-      <category term="设计模式" scheme="http://liuguochao.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+      <category term="算法" scheme="http://liuguochao.github.io/tags/%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
@@ -429,6 +487,134 @@
   </entry>
   
   <entry>
+    <title>JVM垃圾回收机制</title>
+    <link href="http://liuguochao.github.io/2017/03/20/JVM%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/"/>
+    <id>http://liuguochao.github.io/2017/03/20/JVM垃圾回收机制/</id>
+    <published>2017-03-20T09:35:58.000Z</published>
+    <updated>2017-03-20T11:36:26.375Z</updated>
+    
+    <content type="html"><![CDATA[<p>Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：</p>
+<ul>
+<li>哪些内存需要回收</li>
+<li>什么时候回收</li>
+<li>如何回收</li>
+</ul>
+<p>这里的GC算法主要指的是堆和方法区的GC算法，因为程序计数器、虚拟机栈、本地方法栈3个区域随线程而生，随线程而灭，它们内存区域应该分配多少内存在编译期间就已知，因此这3个区域的内存分配和回收都具备确定性，不需要复杂的GC算法，而堆和方法区直到程序运行时才能最终确定需要创建多少对象，因此内存的分配和回收都是动态的，所以需要设计比较高效的GC算法。</p>
+<h4 id="哪些内存需要回收"><a href="#哪些内存需要回收" class="headerlink" title="哪些内存需要回收"></a>哪些内存需要回收</h4><p>在堆里面存放着Java中几乎所有对象的实例，垃圾收集器在对堆中对象进行回收之前，需要首先判断哪些对象还<strong>存活</strong>着，哪些已经<strong>死去</strong>。</p>
+<ol>
+<li><p><strong>引用计数法</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">给对象中添加一个引用计数器，每当有一个地方引用它时，计数值就加1；档引用失效时，计数值就减1；任何时刻计数器为0的对象就是不可能再被使用的</div></pre></td></tr></table></figure>
+<p>这种方法简单高效，但是主流的Java虚拟机中普遍没有采用这种方法，因为他无法解决<strong>对象间相互循环引用的问题</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line">ListNode a=<span class="keyword">new</span> ListNode();</div><div class="line">ListNode b=<span class="keyword">new</span> ListNode();</div><div class="line">a.next=b;</div><div class="line">b.next=a;</div><div class="line">a=<span class="keyword">null</span>;</div><div class="line">b=<span class="keyword">null</span>;</div></pre></td></tr></table></figure>
+<p>在上面的代码中，对象a、b的next相互指向对方，除此之外再没有任何引用，实际上这两个对象已经不可能再被访问，然而如果采用引用计数法，两个对象的计数都不为0，因为他们互相指向对方，导致垃圾回收器无法回收他们。</p>
+</li>
+<li><p><strong>可达性分析算法</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">这个算法的基本思想就是通过一系列成为”GC Roots“的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径成为引用链，档一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。</div></pre></td></tr></table></figure>
+<p><img src="./road.png" alt="road"></p>
+<p>例如上图所示，对象object5、object6、object7虽然互相有关联，但是他们到GC Roots是不可达的，所以他们将会被判定为是可回收的对象。</p>
+<p>在主流的商用程序语言的主流实现中，都是采用可达性分析算法来判定对象是否存活的。</p>
+<p>Java中，可以作为GC Roots的对象包括下面几种：</p>
+<ul>
+<li>虚拟机栈（栈帧中的本地表量表）中引用的对象</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+<li>本地方法栈中JNI（Native方法）引用的对象</li>
+</ul>
+<p>一个对象并不是被判定为不可达，就一定会被回收，因为它还会经历一个<strong>两次标记的过程</strong>：</p>
+<p>第一次：判断为不可达后，会进行第一次标记，并进行筛选以判断该对象是否执行finalize()方法，筛选的条件是：</p>
+<ul>
+<li>对象没有覆盖finalize()方法</li>
+<li>该对象的finalize()方法已经被虚拟机调用过</li>
+</ul>
+<p>这两种情况下，都不会再执行finalize()方法。</p>
+</li>
+</ol>
+<h4 id="什么时候回收"><a href="#什么时候回收" class="headerlink" title="什么时候回收"></a>什么时候回收</h4><p>比较常见的说法就是虚拟机会在系统空闲的时候进行垃圾回收，但这不够准确。其实上面时候进行回收确实是系统自身决定的，代码不可控制，System.gc()方法也仅仅是建议，但不一定会保证一定发生。</p>
+<p>回答这个问题，一定要结合JVM堆内存的划分来回答，现在来回想一下堆内存的划分。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">java堆可以细分为新生代和老年代,新生代还可以细分为Eden区和Survivor区，对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代</div></pre></td></tr></table></figure>
+<p>不同区域的垃圾回收频率和算法均不一样，因此，可以这样回答这个问题：</p>
+<p>Java的GC分为两种：新生代GC和老年代GC：</p>
+<ul>
+<li><strong>新生代GC(Minor GC)</strong>：指发生在新生代的垃圾收集动作，因为这里面对象都是“朝生夕死”的，所以Minor GC非常频繁，一般回收速度也比较快。</li>
+<li><strong>老年代GC(Major GC/Full GC)</strong>：指发生在老年代的GC，出现Major GC经常会伴随至少一次的Minor GC(但不是绝对的)。</li>
+</ul>
+<ol>
+<li><h5 id="新生代GC"><a href="#新生代GC" class="headerlink" title="新生代GC"></a>新生代GC</h5><h5 id="Eden区与Minor-GC"><a href="#Eden区与Minor-GC" class="headerlink" title="Eden区与Minor GC"></a>Eden区与Minor GC</h5><p>大多数情况下，对象会在新生代的Eden区分配，当Eden没有足够的空间进行分配时，虚拟机将发起一次Minor GC。</p>
+</li>
+<li><h5 id="老年代GC"><a href="#老年代GC" class="headerlink" title="老年代GC"></a>老年代GC</h5><p>执行Full GC由于消耗的资源比较大，所以会比较谨慎，在进行之前需要两次判断。</p>
+<ul>
+<li><p><strong>第一次判断：</strong>在发生Full GC之前，虚拟机会检查老年代最大可用连续空间是否大于新生代所有对象的总空间，如果大于，那么Minor GC可以安全执行，没有必要执行Full GC。</p>
+<p>但是，如果不成立，那么就<strong>可能</strong>有必要执行一次Full GC以清除老年代的垃圾。</p>
+<p>为什么说可能呢？因为虽然现在老年代无法容纳所有新生代的内存，但是大部分情况下新生代的内存都会被清理很多的，所以万一新生代需要进入老年代的内存只占其中一小部分呢，那么就不用执行Full GC了啊，当然，这在运行时无法确定，需要冒险。</p>
+</li>
+<li><p><strong>第二次判断:</strong>  有一个参数<strong>HandlePromotionFailure</strong>的作用就是设置是不是要冒险，如果设置为可以冒险，那么会那么会继续检查老年代最大可用的连续空间，判断它是否大于历次晋升到老年代对象的平均大小，也就是大致评估一下这次冒险的成功率，如果如果大于，说明冒险的成功率比较高，那么就不会执行Full GC。</p>
+<p>如果设置为不可以冒险，或者冒险的成功率比较低，那么久会老老实实的执行Full GC</p>
+<p>最后，如果冒险失败，那么最后还是会进行Full GC</p>
+</li>
+</ul>
+<p>​</p>
+<p>可以看出，虚拟机执行Full GC是非常谨慎的，不到万不得已绝不执行，就是因为这个过程非常浪费资源，Full GC的速度一般会比Minor GC慢10倍以上</p>
+</li>
+</ol>
+<h4 id="如何回收"><a href="#如何回收" class="headerlink" title="如何回收"></a>如何回收</h4><p>为了提高垃圾回收的效率，JVM细分为新生代和老年代，对不同的内存区域选用不同的GC算法，即所谓的分代收集算法。</p>
+<ol>
+<li><p><strong>新生代GC算法</strong></p>
+<ul>
+<li><p>标记清除算法</p>
+<p>分为标记和清除两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。</p>
+<p><img src="./bjqc.png" alt="bjqc"></p>
+<p>该算法的缺点是效率不高并且会产生不连续的内存碎片，所以GC基本不采用这种算法。</p>
+</li>
+<li><p>复制算法</p>
+<p>把内存空间划为两个区域，每次只使用其中一个区域。垃圾回收时，遍历当前使用区域，把正在使用中的对象复制到另外一个区域中。次算法每次只处理正在使用中的对象，因此复制成本比较小，同时复制过去以后还能进行相应的内存整理，不会出现“碎片”问题。</p>
+<p><img src="./fz.png" alt="fz"></p>
+</li>
+</ul>
+<p>​    优点：实现简单，运行高效</p>
+<p>​    缺点：会浪费一块内存</p>
+<p>然而，为什么现在的虚拟机都是采用这种复制算法来回收新生代的垃圾呢，因为新生代的对象中，大部分都是“朝生夕死”的。所以，并不需要按照1：1的（理论）比例来分配，而是将新生代继续划分为Eden区域和Survivor区域，划分比例为8:1:1（默认，其实可以调），如下图：</p>
+<p><img src="./eden_survivor.png" alt="eden_survivor"></p>
+<p>​</p>
+<p>其中，Survivor区域被划分为Survivor1和Survivor2，也成为from区域和to区域。</p>
+<p>当Eden区满执行GC的时候，将 Eden 区和 Survivor区中还存活着的对象一次性地复制到另一块Survivor(to)空间上，最后清理掉Eden和过程用过的Survivor(from)的空间。然后from和to对调，下次继续这样执行。</p>
+<p>这样每次新生代中可用的内存空间是整个新生代的90%(Eden和一个Survivor， 80%+10%)，只用10%的内存被“浪费”。</p>
+</li>
+<li><p><strong>老年代GC算法</strong></p>
+<p>老年代的对象存活时间比较长，对象存活率也比较高，如果老年代也采用复制算法进行老年代的GC，则要进行较多的复制操作，效率会变低。所以在老年代一般不采用这个算法。</p>
+<p>根据老年代的特点，人们提出了“标记-整理”算法。过程与标记-清除算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存。</p>
+<p><img src="./bzzl.png" alt="bzzl"></p>
+</li>
+</ol>
+<p>解决完这垃圾回收的3个基本问题，就可以设计相应的垃圾收集器了，下面罗列一下JVM常用的垃圾收集器：</p>
+<ul>
+<li>Serial收集器：新生代收集器，使用复制算法，使用一个线程进行GC，串行，其它工作线程暂停。</li>
+<li>ParNew收集器：新生代收集器，使用复制算法，Serial收集器的多线程版，用多个线程进行GC，并行，其它工作线程暂停。使用-XX:+UseParNewGC开关来控制使用ParNew+Serial Old收集器组合收集内存；使用-XX:ParallelGCThreads来设置执行内存回收的线程数。</li>
+<li>Parallel Scavenge 收集器：吞吐量优先的垃圾回收器，作用在新生代，使用复制算法，关注CPU吞吐量，即运行用户代码的时间/总时间。使用-XX:+UseParallelGC开关控制使用Parallel Scavenge+Serial Old收集器组合回收垃圾。</li>
+<li>Serial Old收集器：老年代收集器，单线程收集器，串行，使用标记整理算法，使用单线程进行GC，其它工作线程暂停。</li>
+<li>Parallel Old收集器：吞吐量优先的垃圾回收器，作用在老年代，多线程，并行，多线程机制与Parallel Scavenge差不错，使用标记整理算法，在Parallel Old执行时，仍然需要暂停其它线程。</li>
+<li>CMS（Concurrent Mark Sweep）收集器：老年代收集器，致力于获取最短回收停顿时间（即缩短垃圾回收的时间），使用标记清除算法，多线程，优点是并发收集（用户线程可以和GC线程同时工作），停顿小。使用-XX:+UseConcMarkSweepGC进行ParNew+CMS+Serial Old进行内存回收，优先使用ParNew+CMS（原因见Full GC和并发垃圾回收一节），当用户线程内存不足时，采用备用方案Serial Old收集。</li>
+<li>G1(Garbage-First)收集器，当今最优秀的垃圾收集器，JDK1.7以上默认的垃圾收集器，面向服务端。</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Java的垃圾回收（Garbage Collection, GC）机制一直面试最常见的问题，谈到垃圾回收，首先应该想到的就是三个大问题：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;哪些内存需要回收&lt;/li&gt;
+&lt;li&gt;什么时候回收&lt;/li&gt;
+&lt;li&gt;如何回收&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这里
+    
+    </summary>
+    
+    
+      <category term="JVM" scheme="http://liuguochao.github.io/tags/JVM/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hello My Blog</title>
     <link href="http://liuguochao.github.io/2017/03/20/helloMyBlog/"/>
     <id>http://liuguochao.github.io/2017/03/20/helloMyBlog/</id>
@@ -559,10 +745,115 @@
     <link href="http://liuguochao.github.io/2017/03/20/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98/"/>
     <id>http://liuguochao.github.io/2017/03/20/数据库面试题/</id>
     <published>2017-03-20T09:35:58.000Z</published>
-    <updated>2017-03-20T12:59:10.566Z</updated>
+    <updated>2017-03-21T02:15:12.103Z</updated>
     
     <content type="html"><![CDATA[<ol>
-<li><p>#### </p>
+<li><h4 id="连接的种类"><a href="#连接的种类" class="headerlink" title="连接的种类"></a>连接的种类</h4><p>(1)  内连接</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">##内连接仅选出两张表相互匹配的记录，关键字为[inner] join，可以</div><div class="line">##如从employ,dept表中选取出每位雇员的名字和其对应的部门名称</div><div class="line">select employ_name,depart_name from employ,dept where employ.dept_id=dept.dept_id;(引用两个表的方式)</div><div class="line">##或者</div><div class="line">select employ.employ_name,dept.depart_name from employ [inner] join dept on employ.dept_id=dept.dept_id;</div></pre></td></tr></table></figure>
+<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |</p>
+<p>(2)  外连接</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">##外连接分为左连接、右连接、全连接</div><div class="line">##其中LEFT JOIN 关键字会从左表 (table_name1) 那里返回所有的行，即使在右表 (table_name2) 中没有匹配的行。</div><div class="line">##RIGHT JOIN 关键字会右表 (table_name2) 那里返回所有的行，即使在左表 (table_name1) 中没有匹配的行。</div><div class="line">##而FULL JOIN ，只要其中某个表存在匹配，关键字就会返回行。</div></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">##如使用left join</div><div class="line">select employ.employ_name,dept.depart_name from employ left join dept on employ.dept_id=dept.dept_id; </div><div class="line">##注意此时的左表指的是employ，因为employ.dept_id=dept.dept_id中，employ表格在等号左边</div></pre></td></tr></table></figure>
+<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |<br>| dony        |             |</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">##如果使用right join</div><div class="line">select employ.employ_name,dept.depart_name from employ right join dept on employ.dept_id=depart.dept_id; </div><div class="line">##注意，此时的右表是depart，因为depart表格在等号右边，如果此时写为：</div><div class="line">select employ.employ_name,dept.depart_name from employ right join dept on depart.dept_id=employ.dept_id; </div><div class="line">##则此时得到的结果和left join应该是一致的，即left join和right join可以相互转化</div></pre></td></tr></table></figure>
+<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |<br>|             | sale        |</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">##如果使用full join</div><div class="line">select employ.employ_name,dept.depart_name from employ full join dept on employ.dept_id=depart.dept_id;</div></pre></td></tr></table></figure>
+<p>| employ_name | depart_name |<br>| ———– | ———– |<br>| zzx         | tech        |<br>| lisa        | sale        |<br>| bjguan      | tech        |<br>| bzshen      | hr          |<br>| dony        |             |<br>|             | sale        |</p>
+</li>
+<li><h4 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h4><p>数据库索引，是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据。索引的实现通常使用<strong>B树及其变种B+树</strong>.</p>
+<p><img src="H:\面试准备\BTREE.png" alt="BTREE"></p>
+<p><strong>所有mysql类类型都可以被索引，对相关列使用索引是提高</strong>select<strong>操作性能的最佳途径</strong>。mysql默认的InnoDB和MyISAM存储引擎创建的索引均是BTREE索引，Memory存储引擎默认使用的是Hash索引，但也支持BTREE索引。</p>
+<h5 id="创建索引的语法为："><a href="#创建索引的语法为：" class="headerlink" title="创建索引的语法为："></a>创建索引的语法为：</h5><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">create</span> [<span class="keyword">unique</span>|fulltext|spatial] <span class="keyword">index</span> index_name [<span class="keyword">using</span> index_type] <span class="keyword">on</span> table_name(index_col_name,...);</div><div class="line">index_col_name:col_name[(length)][asc|desc]</div><div class="line">也可以用：</div><div class="line"><span class="keyword">alter</span> table_name <span class="keyword">add</span> <span class="keyword">index</span> indexname <span class="keyword">on</span> (index_col_name,...);</div></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line">如要为city表的city_name字段创建10个字节的前缀索引，代码如下：</div><div class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_city_name <span class="keyword">on</span> city(city(<span class="number">10</span>));</div><div class="line">如果以city_name为条件进行查询：<span class="keyword">select</span> * <span class="keyword">from</span> city <span class="keyword">where</span> city=<span class="string">'hangzhou'</span>;</div><div class="line">此时，查询该记录所用的方式为索引查询，可以利用<span class="keyword">explain</span>关键字来得到执行该条<span class="keyword">select</span>语句的详细信息：</div></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">explain select * from city where city='hangzhou';</div><div class="line">************************************************</div><div class="line">             id: 1</div><div class="line">    select_type: SIMPLE</div><div class="line">          table: city</div><div class="line">           type: ref</div><div class="line">  possible_keys: idx_city_name ##可能使用到的索引</div><div class="line">            key: idx_city_name ##实际使用到的索引</div><div class="line">            ref:const</div><div class="line">           rows:1</div><div class="line">          Extra: Using where</div><div class="line">       1 rows in set(0.00 sec)</div></pre></td></tr></table></figure>
+<h5 id="删除索引的语法为："><a href="#删除索引的语法为：" class="headerlink" title="删除索引的语法为："></a>删除索引的语法为：</h5><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">drop</span> <span class="keyword">index</span> idx_city_name <span class="keyword">on</span> city;</div></pre></td></tr></table></figure>
+<h5 id="设计索引的原则"><a href="#设计索引的原则" class="headerlink" title="设计索引的原则"></a>设计索引的原则</h5><ul>
+<li>最适合创建索引的列是经常出现在<strong>where</strong>子句中的列，连接子句中指定的列，经常需要排序的列（因为索引建立的时候已经是有序的了），而不是经常出现在<strong>select</strong>关键字后的选择列表中的列。</li>
+<li>索引尽量具有唯一性。因为索引的实现是BTREE，如果索引不能很准确的标记某一记录，那么在对该索引所代表的列进行检索时，就不能很好的利用BTREE进行快速的查找。如，对能够唯一标记学生的学号属性建立索引，建立完成后的BTREE比较良好，可以在log(n)内查找完毕，但如果对学生的性别属性建立索引，建立完成后的索引则没有多大用处，因为不管搜索哪个值，都会得出大概一半的行，想要查找某个学生，还必须在一半的学生内继续回表逐个比对，效率肯定就会低下了。（主键本身就是按照索引的形式存储的）</li>
+<li>索引尽量短小。如，对字符串列创建索引，应该制定一个前缀长度，只要有可能就应该尽量这么做。因为较小的索引占用的存储空间较少，比较起来更快，而且涉及到的磁盘IO比较少，内存中可以容纳更多的索引键值，这样就可以一次查询更多的记录。例如：对一个char(200)的列建立索引，如果该列的前10个字符就可以大致唯一的标识出该行记录，那么就应该取前10个字符创立前缀索引，而不是对整个列建立索引。相应的，如果该列存储的是一些图片或者视频，也应该创建前缀索引，这样不仅查询更快，而且可以支持模糊查询</li>
+<li>不要过度建立索引。为表设置索引要付出代价的：一是增加了数据库的存储空间，二是在插入和修改数据时要花费较多的时间(因为索引也要随之计算并更新)。而且较多的索引，会使得mysql在查询的时候不知道哪个索引是最优的，因此应该只保留最必须的索引。</li>
+</ul>
+<h5 id="BTREE索引和HASH索引"><a href="#BTREE索引和HASH索引" class="headerlink" title="BTREE索引和HASH索引"></a>BTREE索引和HASH索引</h5><ul>
+<li>HASH索引只能用于=或者&lt;=&gt;操作符的比较，对于其他操作符不能加速其查询过程（可以从HASH的原理很容易得知原因），而BTREE索引不仅支持=、&lt;=&gt;，也支持&gt;,&lt;,&gt;=,&lt;=,BETWEEN,LIKE等操作符，即支持范围查询</li>
+<li>mysql优化器不能使用HASH索引来加速ORDER BY操作</li>
+<li>HASH索引只能搜索某一行，查询效率接近于O(1)，比BTREE索引的查询效率要高，因此如果表格数据量不大，可以使用MEMORY存储引擎进行HASH索引的查询</li>
+</ul>
+<h5 id="索引的种类及其创建方法"><a href="#索引的种类及其创建方法" class="headerlink" title="索引的种类及其创建方法"></a>索引的种类及其创建方法</h5><ul>
+<li><p>普通索引</p>
+<p>参考上面创建索引的介绍语句</p>
+</li>
+<li><p>唯一索引</p>
+<p>索引列的值必须唯一，但允许有空值。如果是组合索引，则列值的组合必须唯一，即该索引的每一个节点能够精确地表示某一行</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">unique</span> <span class="keyword">index</span> indexName <span class="keyword">on</span> table_name(colname(<span class="keyword">length</span>)) ;</div><div class="line">或者</div><div class="line"><span class="keyword">alter</span> <span class="keyword">table</span> <span class="keyword">add</span> <span class="keyword">index</span> index_name <span class="keyword">on</span> (colname(<span class="keyword">length</span>));</div><div class="line">或者</div><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_name(colname1 <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,colname2 <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span>,...,<span class="keyword">unique</span> <span class="keyword">index</span> index_name (colname(<span class="keyword">length</span>)));</div></pre></td></tr></table></figure>
+</li>
+<li><p>主键索引</p>
+<p>它是一种特殊的唯一索引，不允许有空值。一般是在建表的时候同时创建主键索引 ，即主键，主键本身就是一种索引，如果使用InnoDB存储引擎，mysql中的数据是按照主键的顺序来排列存储的，如果没有主键，mysql会根据唯一索引排列存储，如果还没有唯一索引，mysql会根据列自动生成一个内部列，按照这个内部列的顺序排列存储。按照内部列或者主键的访问是最快的，因此应该为每个表格创建一个主键，且主键要选择尽可能短的数据类型，提高索引的缓存查询效果。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_name (colname1 <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>,colname2 <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span>,...,primary <span class="keyword">key</span>(colname1));</div></pre></td></tr></table></figure>
+</li>
+<li><p>组合索引</p>
+<p>为了形象地对比单列索引和组合索引，为表添加多个字段：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mytable(   <span class="keyword">id</span> <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,    username <span class="built_in">VARCHAR</span>(<span class="number">16</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,   city <span class="built_in">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,   age <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>  );</div></pre></td></tr></table></figure>
+<p>为了进一步榨取MySQL的效率，就要考虑建立组合索引。就是将 username, city, age建到一个索引里：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> mytable <span class="keyword">ADD</span> <span class="keyword">INDEX</span> name_city_age (username(<span class="number">10</span>),city,age);</div></pre></td></tr></table></figure>
+<p>如果分别在 usernname，city，age上建立单列索引，让该表有3个单列索引，查询时和上述的组合索引效率也会大不一样，远远低于我们的组合索引。虽然此时有了三个索引，但MySQL只能用到其中的那个它认为似乎是最有效率的单列索引。</p>
+<p>建立这样的组合索引，其实是相当于分别建立了下面三组组合索引：</p>
+<p><strong>(usernname,city,age),   (usernname,city),   usernname</strong></p>
+<p>为什么没有 city，age这样的组合索引呢？这是因为MySQL组合索引“最左前缀”的结果。简单的理解就是只从最左面的开始组合,并不是只要包含这三列的查询都会用到该组合索引.</p>
+<p>下面的几个SQL就会用到这个组合索引：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE username=<span class="string">"admin"</span> <span class="keyword">AND</span> city=<span class="string">"郑州"</span>  <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE username=<span class="string">"admin"</span> ;</div></pre></td></tr></table></figure>
+<p>而下面几个则不会用到：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE age=<span class="number">20</span> <span class="keyword">AND</span> city=<span class="string">"郑州"</span>  <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mytable WHREE city=<span class="string">"郑州"</span>;</div></pre></td></tr></table></figure>
+<p>虽然组合索引的查询效率要比单个的列建立的索引效果要好，但是其存储成本和维护成本也比单个的索引成本要高。</p>
+</li>
+</ul>
+<h4 id="使用索引，基本上可以解决数据库95-以上的性能问题"><a href="#使用索引，基本上可以解决数据库95-以上的性能问题" class="headerlink" title="使用索引，基本上可以解决数据库95%以上的性能问题"></a>使用索引，基本上可以解决数据库95%以上的性能问题</h4></li>
+<li><h4 id="数据库优化步骤"><a href="#数据库优化步骤" class="headerlink" title="数据库优化步骤"></a>数据库优化步骤</h4><h5 id="1：SQL语句优化"><a href="#1：SQL语句优化" class="headerlink" title="1：SQL语句优化"></a>1：SQL语句优化</h5><ol>
+<li><p>通过<strong>show status</strong>命令查询各种SQL的执行频率</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'com_%'</span>;</div></pre></td></tr></table></figure>
+<p>可以得到mysql中所有语句的执行次数，我们通常比较关心的是一下几个统计参数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">Com_select:执行select操作的次数，一次查询累加1</div><div class="line">Com_insert:执行insert操作的次数，对于批量插入的insert，也只累加一次</div><div class="line">Com_update:执行update的次数</div><div class="line">Com_delete:执行delete的次数</div><div class="line">Com_commit:事务提交的次数</div><div class="line">Com_rollback:事务回滚的次数</div></pre></td></tr></table></figure>
+<p>通过这个命令可以得知，当前数据库是以插入更新为主还是以查询为主，从而确定在哪些方面进行优化。</p>
+<p>对于应用事务的数据库，还要看事务提交的次数和回滚的次数，如果回滚次数非常多，证明后台业务逻辑代码出现了问题，需要通知后台编程人员</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">status</span> <span class="keyword">like</span> <span class="string">'slow_queries'</span>;</div></pre></td></tr></table></figure>
+<p>通过这个语句可以得知，数据库遭遇慢查询的次数，如果次数特别多，证明数据库需要优化。</p>
+</li>
+<li><p>定位执行效率较低的SQL语句</p>
+<p>通过查询慢查询日志可以定位那些执行效率比较低的SQL语句。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line">首先通过以下语句查看数据库是否开启了慢查询日志记录：</div><div class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span><span class="string">'%query%'</span>;</div></pre></td></tr></table></figure>
+<p><img src="H:\面试准备\slow.png" alt="slow"></p>
+<p>其中long_query_time=10，指的是查询时间超过10s的就会被记录到slow_query_log中，该值可以修改。</p>
+<p>从图中可以得知，slow_query_log未开启，开启方法为：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">在my.ini末尾加入</div><div class="line">slow_query_log = 1</div><div class="line">long_query_time = 4</div><div class="line">重启mysql服务即可开启</div><div class="line">如果需要把没有索引的sql语句也写入到日志中，设置</div><div class="line">log_queries_not_using_indexes  =1 </div><div class="line">开启后，就会在上图slow_query_log_file的位置生成一个lgc-slow.txt的日志文件，其中lgc为mysql_master的名字。</div></pre></td></tr></table></figure>
+<p>这样，查看慢查询日志就可以定位到执行效率比较差的sql语句</p>
+</li>
+<li><p>通过<strong>explain, show profile</strong>命令分析低效SQL语句低效的原因</p>
+<p>从1，2得到执行效率比较差的sql语句之后，就需要分析为什么执行效率比较差，是没有建立索引，还是索引无法使用。此时就需要分析该条语句的执行过程</p>
+<p>如想要统计某个email为XXX的用户为租赁电影拷贝所支付的总金额，需要关联客户表customer和付款表payment，并且对付款金额amount字段进行sum求和操作，相应的sql语句分析如下：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">explain select sum(amount) from payment p,customer c where c.customer_id=p.customer_id and email='xxxx@sb.com';</div><div class="line">************************************************</div><div class="line">             id: 1</div><div class="line">    select_type: SIMPLE</div><div class="line">          table: p</div><div class="line">           type: ref</div><div class="line">  possible_keys: idx_fk_customer_id </div><div class="line">            key: idx_fk_customer_id</div><div class="line">		key_len: 2</div><div class="line">            ref: sakila.c.customer_id</div><div class="line">           rows: 12</div><div class="line">          Extra: </div><div class="line">************************************************</div><div class="line">             id: 1</div><div class="line">    select_type: SIMPLE</div><div class="line">          table: c</div><div class="line">           type: ALL</div><div class="line">  possible_keys: PRIMARY</div><div class="line">            key: NULL</div><div class="line">		key_len: NULL</div><div class="line">            ref: NULL</div><div class="line">           rows: 583</div><div class="line">          Extra: Using where</div><div class="line">       2 rows in set(0.00 sec)</div></pre></td></tr></table></figure>
+<p>其中：</p>
+<p>select_type：表示select的类型，常见的取值为SIMPLE（简单表查询，即不适用表连接或者子查询），PRIMARY（主查询），UNION、SUBQUERY等</p>
+<p>table：输出结果的表</p>
+<p>type：表示mysql在表中找到所需行的方式，即访问类型</p>
+<p>| type          | 意义                    |<br>| ————- | ——————— |<br>| ALL           | 全表扫描                  |<br>| index         | 索引全扫描                 |<br>| range         | 索引范围扫描                |<br>| ref           | 使用非唯一索引或唯一索引的前缀扫描     |<br>| eq_ref        | 使用唯一索引扫描              |<br>| const, system | 使用主键或者唯一索引进行扫描，最快速的扫描 |<br>| NULL          | 不用访问表或者索引就可以得到结果      |</p>
+<p>possible_keys：表示查询时可能使用到的索引</p>
+<p>key：实际使用的索引</p>
+<p>key_len；使用索引的字段的长度</p>
+<p>rows：扫描行的数量</p>
+<p>Extra：执行情况的说明和描述，是判断sql语句执行速度的重要额外信息</p>
+<p>从explain的结果可以得知，对于表customer的扫描是全表扫描，且没有使用索引，导致查询的效率不好，所以应该对customer的customer_id字段建立索引，这样再次执行该条语句，就会有比较大的性能提升。</p>
+<p>如果通过explain不能得到比较好的分析结果，可以在利用show profile关键字，对该条语句执行的每个状态做分析，分析出是哪一块出了问题。如在payment表上做一个count(*)查询：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">set profiling=1;#profile默认是关闭的，现在打开</div><div class="line">mysql&gt; select count(amount) from payment;</div><div class="line">+---------------+</div><div class="line">| count(amount) |</div><div class="line">+---------------+</div><div class="line">|         16049 |</div><div class="line">+---------------+</div><div class="line">1 row in set</div><div class="line"></div><div class="line">mysql&gt; set @query_id := 4;</div><div class="line">Query OK, 0 rows affected</div><div class="line"></div><div class="line">mysql&gt; select state,sum(duration) as total_time from information_schema.profiling where query_id=@query_id group by state order by total_time desc;</div><div class="line">+----------------------+------------+</div><div class="line">| state                | total_time |</div><div class="line">+----------------------+------------+</div><div class="line">| Sending data         | 0.007694   |</div><div class="line">| freeing items        | 0.000116   |</div><div class="line">| starting             | 0.000068   |</div><div class="line">| Opening tables       | 0.000037   |</div><div class="line">| init                 | 0.000027   |</div><div class="line">| cleaning up          | 0.000019   |</div><div class="line">| statistics           | 0.000016   |</div><div class="line">| preparing            | 0.000014   |</div><div class="line">| closing tables       | 0.000014   |</div><div class="line">| checking permissions | 0.000012   |</div><div class="line">| System lock          | 0.000010   |</div><div class="line">| end                  | 0.000010   |</div><div class="line">| query end            | 0.000009   |</div><div class="line">| optimizing           | 0.000007   |</div><div class="line">| executing            | 0.000003   |</div><div class="line">+----------------------+------------+</div><div class="line">15 rows in set</div></pre></td></tr></table></figure>
+<p>从图中可以看出，最消耗时间的其实是sending data过程，sending data过程代表的是mysql开始访问数据行并把结果返回给客户端的一系列IO操作，经常是整个查询中最耗时的操作。</p>
+<p>下面就要分析sending data过程到底是哪一步最费时间，就可以执行以下语句来得到到底是cpu执行时间过长，还是因为等待前一个线程释放锁或者其他原因：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> profile all <span class="keyword">for</span> <span class="keyword">query</span> @query_id;</div></pre></td></tr></table></figure>
+<p>从结果（略）分析可知是sending data主要花在了cpu执行上，那么就可以针对该原因展开具体的改善措施。</p>
+<p>调查发现，payment表的存储引擎是InnoDB，因此没有表元数据的缓存（如count(*)的值），因此每次执行count()操作，就会导致大量的CPU操作，而Myisam存储引擎有表元数据的缓存，因此执行count()操作不需要花费很多时间，如果这里不考虑事务的话，将payment表的存储引擎改为Myisam即可显著减少sending data的时间。</p>
+</li>
+<li><p>确定问题后采取相应的优化措施</p>
+<p>通过explain一般可以解决是不是缺少索引，或者索引没有调用等sql语句的问题，如以%开头的LIKE查询就不能使用BTREE索引等</p>
+<p>而通过profile一般可以解决数据库是否应该开启缓存，数据库引擎设置是否得当，数据库服务器是否负载等比较大的问题</p>
+</li>
+</ol>
 <h5 id="2：应用程序编程优化"><a href="#2：应用程序编程优化" class="headerlink" title="2：应用程序编程优化"></a>2：应用程序编程优化</h5><ol>
 <li><p>使用数据库连接池</p>
 <p>因为数据库建立连接的代价比较高，因此如果对于数据库的查询查询一次就建立一次连接，会使得服务器的大部分性能消耗在建立连接上。建立数据库连接池，可以很好的解决这个问题，至于框架怎么配置数据库连接池，请百度。</p>
@@ -619,14 +910,142 @@
     <summary type="html">
     
       &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;#### &lt;/p&gt;
-&lt;h5 id=&quot;2：应用程序编程优化&quot;&gt;&lt;a href=&quot;#2：应用程序编程优化&quot; class=&quot;headerlink&quot; title=&quot;2：应用程序编程优化&quot;&gt;&lt;/a&gt;2：应用程序编程优化&lt;/h5&gt;&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;使用数据库连接
+&lt;li&gt;&lt;h4 id=&quot;连接的种类&quot;&gt;&lt;a href=&quot;#连接的种类&quot; class=&quot;headerlink&quot; title=&quot;连接的种类&quot;&gt;&lt;/a&gt;连接的种类&lt;/h4&gt;&lt;p&gt;(1)  内连接&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr
     
     </summary>
     
     
       <category term="数据库" scheme="http://liuguochao.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java内存分区</title>
+    <link href="http://liuguochao.github.io/2017/03/20/JVM%E5%86%85%E5%AD%98%E5%88%92%E5%88%86/"/>
+    <id>http://liuguochao.github.io/2017/03/20/JVM内存划分/</id>
+    <published>2017-03-20T09:35:58.000Z</published>
+    <updated>2017-03-20T12:42:03.755Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：</p>
+<p>上图：</p>
+<p><img src="./region.jpeg" alt="region"></p>
+<p>大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不是特别准确。准确的说JVM的内存可以划分为5个区域。</p>
+<h4 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h4><p>java堆是jvm内存管理中最大的一块，线程共享。在jvm启动的时候创建。此区域唯一目的就是存放对象实例，几乎所有的对象实例都在这里分配内存。</p>
+<p>由于现在的收集器基本都采用分代收集算法，所以java堆还可以细分为新生代和老年代，新生代中垃圾回收算法为复制算法，老年代中采用的为标记-清除算法</p>
+<p>新生代还可以细分为Eden区和Survivor区，对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代，这里的长期存活是根据新生代中的对象年龄阈值来定义的，对象刚分配到新生代的时候年龄为1，每进行一次GC对象的年龄会加1，HotSpot中默认的阈值是15，也就是说对象年龄达到15岁的时候会被分配到老年代，这个值是可以通过参数配置的。</p>
+<h4 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h4><p>方法区又被称为永久代，线程共享，是用来存储已被JVM加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。方法区为堆的一个逻辑部分，但是在JDK1.7的HotSpot中已经将方法区中的字符串常量池移出，部分资料显示JDK1.8已经去除了方法区（不确定）。不过已经可以猜测此区域将会被本地内存逐步取代。</p>
+<p>这个区域很少进行垃圾回收，回收目标主要是针对常量池的回收和对类型的卸载，回收的条件相当苛刻</p>
+<h4 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h4><p>虚拟机栈是线程私有的，它的生命周期与线程相同。JVM栈描述的是java方法执行的内存模型，每个方法在执行的同时都会创建一个栈帧，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。<strong>每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程</strong>。</p>
+<p><strong>局部变量表中存放了编译期可知的各种基本数据类型、对象的引用类型。局部变量表中需要的内存空间在编译期间完成分配，当进入一个方法时，这个方法需要在帧中分配多大的局部变量空间是完全确定的，在方法运行期间不会改变局部变量表的大小</strong>。</p>
+<h4 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h4><p>本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方法栈是为jvm使用到对的本地方法服务。HotSpot虚拟机中直接把本地方法栈和JVM栈合二为一了。例如在java中调用Python书写的程序，就需要使用本地方法栈</p>
+<h4 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h4><p>程序计数器是一块较小的内存空间，线程私有。所以每个线程内部都维护了一个程序计数器。它可以看作是当前线程所执行的字节码的行号指示器。在jvm的概念模型里，字节码解释器工作就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。如果线程正在执行的是一个java方法，这个计数器记录的是正在执行的jvm字节码指令的地址；如果正在执行的是本地方法，这个计数器值则为空。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近看了《深入理解java虚拟机》这本书，现总结一下。该篇介绍java虚拟机的内存划分：&lt;/p&gt;
+&lt;p&gt;上图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;./region.jpeg&quot; alt=&quot;region&quot;&gt;&lt;/p&gt;
+&lt;p&gt;大多数人将JVM的内存划分为堆和栈，这是有道理的，但是不
+    
+    </summary>
+    
+    
+      <category term="JVM" scheme="http://liuguochao.github.io/tags/JVM/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>命令模式</title>
+    <link href="http://liuguochao.github.io/2017/03/20/Java%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/"/>
+    <id>http://liuguochao.github.io/2017/03/20/Java命令模式/</id>
+    <published>2017-03-20T09:35:58.000Z</published>
+    <updated>2017-03-20T12:35:58.463Z</updated>
+    
+    <content type="html"><![CDATA[<p>假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。</p>
+<p>现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&gt; 柜台服务员记录下来（创建命令） -&gt; 服务员把小票扔给厨房 -&gt; 厨师C很快做好了一碗面（请求被执行）</p>
+<p>顾客不知道将由谁来做这碗面，柜台服务员也不知道，厨师不知道是谁点了这碗面，只知道做完面就可以休息了</p>
+<p>首先定义一个命令接口，使得所有的具体命令都实现该接口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Command</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//来一碗面条</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoodlesCommand</span> <span class="keyword">implements</span> <span class="title">Command</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> Chef chef;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">NoodlesCommand</span><span class="params">()</span></span>&#123;</div><div class="line">        chef = <span class="keyword">new</span> NoodlesChef();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute</span><span class="params">()</span></span>&#123;</div><div class="line">        chef.cook();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//来一张饼</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PieCommand</span> <span class="keyword">implements</span> <span class="title">Command</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> Chef chef;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PieCommand</span><span class="params">()</span></span>&#123;</div><div class="line">        chef = <span class="keyword">new</span> PieChef();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute</span><span class="params">()</span></span>&#123;</div><div class="line">        chef.cook();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>再定义一个抽象的执行者，所有的执行者均继承于该执行者</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Chef</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">cook</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//做面条的厨师</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoodlesChef</span> <span class="keyword">extends</span> <span class="title">Chef</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cook</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"做好了一碗面条"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//做饼的厨师</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PieChef</span> <span class="keyword">extends</span> <span class="title">Chef</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cook</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"做好了一张饼"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>客户端测试：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"Command Pattern餐馆开张。。"</span>);</div><div class="line">        System.out.println(<span class="string">"第一位客户X先生"</span>);</div><div class="line">        System.out.println(<span class="string">"X先生：你好，我需要一碗面，我饿极了"</span>);</div><div class="line">        NoodlesCommand nCmd = <span class="keyword">new</span> NoodlesCommand();<span class="comment">//请求者不知道到底是谁做的面条，只是下达命令</span></div><div class="line">        System.out.println(<span class="string">"柜台服务员：好的，我已经记下了，马上就好"</span>);</div><div class="line">        System.out.println(<span class="string">"柜台服务员：厨房~~,接单"</span>);</div><div class="line">        nCmd.execute();<span class="comment">//服务员控制执行的具体时间</span></div><div class="line">        System.out.println(<span class="string">"X先生：真快啊！"</span>);</div><div class="line">         </div><div class="line">        System.out.println();</div><div class="line">         </div><div class="line">        System.out.println(<span class="string">"第二位客户XX先生"</span>);</div><div class="line">        System.out.println(<span class="string">"XX先生：你好，我需要一块饼，20分钟后来取"</span>);</div><div class="line">        PieCommand pCmd = <span class="keyword">new</span> PieCommand();</div><div class="line">        System.out.println(<span class="string">"柜台服务员：好的，我已经记下了"</span>);</div><div class="line">        System.out.println(<span class="string">"15分钟后"</span>);</div><div class="line">        System.out.println(<span class="string">"柜台服务员：厨房~~,接单"</span>);</div><div class="line">        pCmd.execute();</div><div class="line">        System.out.println(<span class="string">"XX先生：真准时啊！"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ol>
+<li><p>假如现在需求改变，顾客下了一个单，服务员将单子给厨房的某个厨师，厨师吩咐底下的小工去切菜，切肉，小工发现菜不够了，打电话给小贩送菜……，这样多级命令的调用——宏命令（多条命令顺序执行）怎么实现？</p>
+<p>实现的话，仅需在原始的具体Command的excute方法中调用下一条具体Command的excute方法，下一条具体Command的excute方法，再调用下下一条具体Command的excute方法，碰到具体的执行者，就调用执行者相关的执行方法。</p>
+</li>
+<li><p>加入现在需求又发生改变，假如来了很多顾客，点了很多份餐点，过了一会儿有几个顾客等不及了需要撤销，我们如何实现？</p>
+<p>这个也比较容易实现，只需在Command接口中添加一个undo()方法就行了。</p>
+</li>
+<li><p>加入现在需求有改变，这次不是餐馆，比如你要做一个文本编辑器，用户发出了一系列的命令，完成了一些操作，后来发现操作有问题，想要撤销操作N次，怎么支持多步顺序撤销？</p>
+<p>这次我们需要维护一个命令表，且支持“后入先出”的原则，因此我们可以用一个栈来存放相应的指令，如果想要撤销指令的话，就从栈中弹出相应的指令即可。</p>
+</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;假设这样一个场景，领导派给你一个任务，你要完成这个任务。作为领导他并不需要关心任务具体的执行细节，只需要发出命令即可，这样就最大限度地减轻了领导的负担。这就是命令模式——解耦请求者与执行者。&lt;/p&gt;
+&lt;p&gt;现在考虑一个现实应用：顾客A来到餐馆点一碗面（发出请求） -&amp;gt;
+    
+    </summary>
+    
+    
+      <category term="设计模式" scheme="http://liuguochao.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>策略模式</title>
+    <link href="http://liuguochao.github.io/2017/03/20/Java%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
+    <id>http://liuguochao.github.io/2017/03/20/Java策略模式/</id>
+    <published>2017-03-20T09:35:58.000Z</published>
+    <updated>2017-03-20T11:39:19.538Z</updated>
+    
+    <content type="html"><![CDATA[<p>策略模式用一句话概括就是<strong>“面向接口编程”</strong>，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。</p>
+<p>借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：</p>
+<p>你是某游戏公司的软件工程师Joe，现在有个打鸭子的游戏要做，因为鸭子种类很多（假如确实非常多，包括假的鸭子），你这样定义鸭子类：</p>
+<p><img src="http://img.blog.csdn.net/20150321104828964?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Duck</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子叫</span></div><div class="line">        System.out.println(<span class="string">"quack!quack!"</span>)</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子游泳</span></div><div class="line">        System.out.println(<span class="string">"duck swiming!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//定义鸭子的外观，因为不同鸭子的外观不同，因此定义为抽象方法，让子类去重写</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">diplay</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//定义几个子类</span></div><div class="line"><span class="keyword">public</span> MallardDuck extends Duck&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">diplay</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"我是绿头鸭！"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> RedHeadDuck extends Duck&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"我是红头鸭！"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">.......</div></pre></td></tr></table></figure>
+<p>当你做好了这些类以后，产品经理有一天对你说，现在要为每种鸭子添加飞的功能。你觉得作为一个OO软件开发的人来说太easy了，于是你用继承在Duck添加了fly方法如下：</p>
+<p><img src="http://img.blog.csdn.net/20150321105123154?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Duck</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子叫</span></div><div class="line">        System.out.println(<span class="string">"quack!quack!"</span>)</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子游泳</span></div><div class="line">        System.out.println(<span class="string">"duck swiming!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//定义鸭子飞</span></div><div class="line">        System.out.println(<span class="string">"duck flying!"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//定义鸭子的外观，因为不同鸭子的外观不同，因此定义为抽象方法，让子类去重写</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">diplay</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//其他子类继承Duck</span></div><div class="line">...</div></pre></td></tr></table></figure>
+<p>正当你为自己的速度感到相当有成就感的时候，产品经理黑着脸过来，“为什么玩具鸭子也会飞啊！”。。(这里是因为后来添加了一个玩具鸭子类，继承于你写的基类Duck，并不怪你，需求改变了。。。)</p>
+<p>但聪明的你很快想到了面向对象的方法覆盖，把不会飞的鸭子的fly方法重写一下不就行了。</p>
+<p>但是产品经理又一次黑着脸。。“如果以后添加很多鸭子，有些不会飞，有些不会叫，有些都不会，你倒一个个给我改试试看！？”。。。(对产品经理无语，你刚开始说不是鸭子都会飞，都会叫的嘛。。。。。。，但你身为一个苦逼的程序猿，必须改改改)</p>
+<p>这时你意识到，需要一个更清晰的方法让鸭子指定可以飞或者可以叫。</p>
+<p>不是有接口么？让会飞的实现飞的接口，会叫的实现叫的接口不就行了？</p>
+<p><img src="http://img.blog.csdn.net/20150321110236139?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>这时黑着脸的产品经理再次出现。。“你这样重复代码不得很多么？！以后要改某些鸭子的飞行行为不是得一个个改？！”。。(挨千刀的产品经理。。。。。，谁让你乱改需求的，一会这个鸭子飞慢点，一会这个鸭子飞快点，一会儿这些鸭子不飞了，但是身为受人尊敬的程序猿，你怎么能在产品经理面前低头呢，于是你说好（妈）办（的）！)</p>
+<p>于是你去深山中拜访大师，大师就吐了一句话：“<strong>找出应用中可能需要变化之处，把它们独立出来，不要和那些不需要变化的代码混在一起。</strong>”。</p>
+<p>大师一语惊醒梦中人，于是你很快想到：为了要分开“变化和不会变化的部分”，我们准备建立<strong>两组类</strong>（完全远离Duck类），一个是“fly”相关的，一个是“quack”相关的，每一组类将实现各自的动作。比方说，我们可能有一个类实现“呱呱叫”，另一个类实现“吱吱叫”，还有一个类实现“安静”。我们知道Duck类内的fly()和quack()会随着鸭子的不同而改变。为了要把这两个行为从Duck类中分开，我们将把它们从Duck类中取出来，建立一组新类来代表每个行为。</p>
+<p>那如何设计那组实现飞行和呱呱叫的行为的类呢？你想不懂，于是打了个电话给山林中的大师，深沉的大师又只说了一句：“<strong>针对接口编程，而不是针对实现编程</strong>。“</p>
+<p>你果然聪明人，一点就破，立刻想出如下方法：</p>
+<p>从现在开始，鸭子的行为将被放在分开的类中，此类专门提供某行为接口的实现。</p>
+<p>这样，鸭子类就不再需要知道行为的实现细节。在新设计中，鸭子的子类将使用接口（FlyBehavior与QuackBehavior）所表示的行为，所以实际的“实现”不会被绑死在鸭子的子类中。像这样：</p>
+<p><img src="http://img.blog.csdn.net/20150321111809177?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img">其实“针对接口编程”真正的意思是“针对超类型（supertype）编程”。这里所谓的“接口”有多个含义，接口是一个“概念”,“针对接口编程”，关键就在多态。利用多态，针对超类型编程，执行时会根据实际状况执行到真正的行为，不会被绑死在具体的行为上。</p>
+<p>你有很快懂了。你这么做：</p>
+<p><img src="http://img.blog.csdn.net/20150321112834338?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc2luYXRfMjMwOTI2Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>根据以上分析，于是你一鼓作气写出如下代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//基类Duck</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> Duck&#123;</div><div class="line">    FlyBehavior flyBehavior;</div><div class="line">    QuackBehavior quackBehavior;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">performQuack</span><span class="params">()</span></span>&#123;</div><div class="line">        quackBehavior.quack();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">performFly</span><span class="params">()</span></span>&#123;</div><div class="line">        flyBehavior.flfly();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">swim</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"duck swiming"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlyBehavior</span><span class="params">(FlyBehavior fb)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.flyBehavior = fb;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setQuackBehavior</span><span class="params">(QuackBehavior qb)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.quackBehavior = qb;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//fly,duck接口</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FlyBehavior</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">QuackBehavior</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//飞行的具体实现类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlyWithWings</span> <span class="keyword">implements</span> <span class="title">FlyBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"Duck flying with wings"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FlyNoway</span> <span class="keyword">implements</span> <span class="title">FlyBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flfly</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"Duck can't fly"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//叫的具体实现类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommonQuack</span> <span class="keyword">implements</span> <span class="title">QuackBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"quack,quack!"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MuteQuack</span> <span class="keyword">implements</span> <span class="title">QuackBehavior</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">quack</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"I can't quack"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">....</div><div class="line"><span class="comment">//测试类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MiniDuck</span> <span class="keyword">extends</span> <span class="title">Duck</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MiniDuck</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.flyBehavior = <span class="keyword">new</span> FlyWithWings();</div><div class="line">        <span class="keyword">this</span>.quackBehavior = <span class="keyword">new</span> CommonQuack();</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span></span>&#123;</div><div class="line">        System.out.println(<span class="string">"I am a mini duck"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//客户端调用代码</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        Duck miniDuck = <span class="keyword">new</span> MiniDuck();</div><div class="line">        miniduck.performQuack();<span class="comment">//输出"quack,quack"</span></div><div class="line">        miniDuck.periformFly();<span class="comment">//输入“Duck fly with wings"</span></div><div class="line">        <span class="comment">//突然产品经理说，现在所有的miniduck不能飞了</span></div><div class="line">        miniDuck.setFlyBehavior(<span class="keyword">new</span> FlyNoway());<span class="comment">//现在所有的鸭子都不能飞了，这样就实现了动态的改变鸭                                                 // 子的各种行为了</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>总结：</strong></p>
+<p>策略模式定义了算法族(每一算法族代表一种接口的一组具体实现类)，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户。（书上定义）</p>
+<p>自己的理解：</p>
+<p>策略模式的核心是要把频繁发生变化的部分封装起来，作用是把变化部分的影响隔离开，避免局部的变化对其它不变化部分造成影响，设计时可能需要更多的时间，但便于维护、复用与扩展。例如本例子中，Duck的fly行为和quack行为会经常性变化，那么就需要把这两种行为封装起来，做成独立的两组实现类，这两组实现类为了能够统一的调用，因此这两组类都是两个统一接口的具体实现，这样，鸭子的fly行为和quack行为就是抽象的，具体拥有何种行为则可以通过传入具体类的对象来动态修改。如果又增加了其他可变的方法，只需在基类中再定义一个类似的接口就行了。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;策略模式用一句话概括就是&lt;strong&gt;“面向接口编程”&lt;/strong&gt;，将频繁发生变化的方法封装为接口，实现抽象方法与具体对象的解耦，增加了程序的灵活性和可扩展性。&lt;/p&gt;
+&lt;p&gt;借用《Head First 设计模式》这本书的例子，说明策略模式提出的背景：&lt;/p&gt;
+&lt;p
+    
+    </summary>
+    
+    
+      <category term="设计模式" scheme="http://liuguochao.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
     
   </entry>
   

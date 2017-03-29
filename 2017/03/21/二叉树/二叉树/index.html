@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="��˵�ü��Բ����ü���">
+    <meta name="keyword" content="null">
+    <meta name="theme-color" content="#600090">
+    <meta name="msapplication-navbutton-color" content="#600090">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#600090">
+    <link rel="shortcut icon" href="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-person-128.png">
+    <link rel="alternate" type="application/atom+xml" title="Moore" href="/atom.xml">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
+    <title>
+        
+        二叉树｜Moore&#39;s blog
+        
+    </title>
+
+    <link rel="canonical" href="http://liuguochao.github.io/2017/03/21/二叉树/二叉树/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/blog-style.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+
+<style>
+
+    header.intro-header {
+        background-image: url('//o7bkkhiex.bkt.clouddn.com/lion-blur-bg.jpg')
+    }
+</style>
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="" class="animated fadeIn">
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top " id="nav-top" data-ispost = "true" data-istags="false
+" data-ishome = "false" >
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand animated pulse" href="/">
+                <span class="brand-logo">
+                    Moore
+                </span>
+                's Blog
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <!-- /.navbar-collapse -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+					
+                    
+                        
+							
+                        <li>
+                            <a href="/tags/">tags</a>
+                        </li>
+							
+						
+                    
+					
+					
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+//    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+<!-- Main Content -->
+
+<!--only post-->
+
+
+<img class="wechat-title-img"
+     src="">
+
+
+<style>
+    
+    header.intro-header {
+        background-image: url('')
+    }
+
+    
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <div class="post-heading">
+                    <h1>二叉树</h1>
+                    
+                    <span class="meta">
+                         作者 Moore
+                        <span>
+                          日期 2017-03-21
+                         </span>
+                    </span>
+                    <div class="tags text-center">
+                        
+                        <a class="tag" href="/tags/#算法"
+                           title="算法">算法</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="post-title-haojen">
+        <span>
+            二叉树
+        </span>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <!-- Post Container -->
+            <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
+                <p>二叉树经常被用于快速查找，快速排序，在现实场景中应用广泛，因此经常会在面试中被问到。今天就系统的复习一下二叉树的一些基本操作。</p>
+<h3 id="二叉树的存储"><a href="#二叉树的存储" class="headerlink" title="二叉树的存储"></a>二叉树的存储</h3><p>二叉树的存储方式大致分为顺序存储和链式存储。</p>
+<p>顺序存储一般是用数组来存，存储密度比较高；但是存储之前需要按照某种遍历方式，先将二叉树的节点按照某种遍历方式遍历一遍；对于非完全二叉树，还需要储存虚节点的值，因此如果一棵树有大量的虚节点，则会造成大量的存储空间的浪费。因此，顺序存储结构非常适合满二叉树和完全二叉树的存储。</p>
+<p>链式存储一般用双向链表或者三叉链表来存储。所谓的双向链表指的是定义一个前指针指向左孩子节点，定义一个后指针指向右孩子节点。所谓的三叉链表指的是在双向链表的基础上再定义一个前指针指向父节点。链式存储具有和可以内存空间不连续，可以较好地保持树形结构的优点；缺点是存储密度比较低，get某个节点不方便。</p>
+<h3 id="二叉树的遍历"><a href="#二叉树的遍历" class="headerlink" title="二叉树的遍历"></a>二叉树的遍历</h3><p>二叉树的遍历根据访问根节点的顺序分为前序遍历（先根遍历），中序遍历（中根遍历），后序遍历（后根遍历）；如果按照二叉树节点所处的层次进行遍历，则有层次遍历。</p>
+<ol>
+<li>前序遍历：根节点- &gt;左子树- &gt;右子树</li>
+<li>中序遍历：左子树- &gt;根节点- &gt;右子树</li>
+<li>后序遍历：左子树- &gt;右子树- &gt;根节点</li>
+<li>层次遍历：从上到下，从左到右</li>
+</ol>
+<p>例如：求下面树的遍历</p>
+<p><img src="http://hi.csdn.net/attachment/201109/21/0_13166086420zyt.gif" alt="img"></p>
+<p>​                                                                                   （图1）</p>
+<p>前序遍历：abdefgc<br>中序遍历：debgfac<br>后序遍历：edgfbca<br>层次遍历：abcdfeg</p>
+<h4 id="相应的遍历递归实现为："><a href="#相应的遍历递归实现为：" class="headerlink" title="相应的遍历递归实现为："></a>相应的遍历递归实现为：</h4><figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//前序遍历的递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrderTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        System.out.print(t.getData() + <span class="string">" "</span>);<span class="comment">//访问根节点</span></div><div class="line">        preOrderTraverse(t.getLeftChild());<span class="comment">//访问左子树</span></div><div class="line">        preOrderTraverse(t.getRightChild());<span class="comment">//访问右子树</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//中序遍历的递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrderTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        inOrderTraverse(t.getLeftchild());</div><div class="line">        System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">        inOrderTraverse(t.getRightChild());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//后序遍历的递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        postOrderTraverse(t.getLeftChild());</div><div class="line">        postOrderTraverse(t.getRightChild());</div><div class="line">        System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>递归实现的树的遍历形式简洁，可读性强，但是由于递归需要调用系统堆栈，所以空间消耗比非递归代码大得多，而且，如果递归层次太深，会导致“爆栈”，因此需要将二叉树的递归遍历实现修改为非递归。</p>
+<h4 id="相应的遍历非递归实现为："><a href="#相应的遍历非递归实现为：" class="headerlink" title="相应的遍历非递归实现为："></a>相应的遍历非递归实现为：</h4><p>非递归遍历就需要用到循环，因此我们必须找到循环的开始条件和终止条件。分解二叉树前序遍历的过程，例如对图（1）的前序遍历结果为：abdefgc，因为递归的过程和栈有关，所以我们可以<strong>利用栈来模拟递归</strong>的过程。</p>
+<p>根据递归的过程，我们将其分为以下3个步骤：</p>
+<ol>
+<li>首先访问根节点，然后以根节点的左孩子节点作为新的“根节点”继续向下访问，直到最后一个小小子树的“根节点”没有左孩子节点为止；</li>
+<li>然后开始找寻该“根节点”的右孩子，如果存在，以右孩子作为新的“根节点”，重复以上寻找“根节点”的过程；如果没有，则回退到上一个“根节点”，找寻上一个“根节点”的右孩子节点，如果没有继续回退，直到找到一个”根节点”有右孩子节点为止；然后以右孩子节点作为“新的根节点”重复1,2这个过程。</li>
+<li>直到无法回退到任何一个根节点，或者找不到一个“根节点”，结束</li>
+</ol>
+<p>上面第一步找寻<strong>“新的根节点”</strong>的过程，可以抽象为入栈的过程，相应的找不到右孩子，回退到上一个“根节点”的过程，可以抽象为出栈的过程。</p>
+<p>相应的算法描述如下：</p>
+<ol>
+<li>创建一个栈对象，根节点入栈</li>
+<li>依次访问根节点的非空左孩子节点，并将当前访问节点压入栈</li>
+<li>若栈非空，弹出栈顶元素G，并将G节点的非空右孩子节点压入栈</li>
+<li>重复2,3，直到栈为空</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//前序遍历的非递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    Stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span> || !s.empty())&#123;</div><div class="line">        <span class="keyword">while</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">            <span class="comment">//将左子树</span></div><div class="line">            System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">            s.push(t);</div><div class="line">            t = t.getLeftChild();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (!s.empty())&#123;</div><div class="line">            t = s.pop();</div><div class="line">            t = t.getRightChild();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>模仿前序遍历的非递归过程，可以很容易的得到中序遍历的非递归过程<br><figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//中序遍历的非递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    Stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span> || !s.empty())&#123;</div><div class="line">        <span class="keyword">while</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">            s.push(t);</div><div class="line">            t = t.getLeftChild();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (!s.empty())&#123;</div><div class="line">            t = s.pop();</div><div class="line">            System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">            t = t.getRightChild();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>后续遍历的非递归实现比较复杂。因为后序遍历是先访问左子树，再访问右子树，最后访问根节点。但是在对树的搜索过程中，确是先从树的根节点出发，沿着该节点的左子树向下搜索，在搜索的过程中每遇到一个节点，需要判断该节点是否第一次被访问过，如果是，则不立即访问，而是将该节点入栈保存，遍历该节点的左子树，当左子树遍历完毕后再返回该节点，此时还不能访问该节点，还必须遍历完该节点的右子树，这样才能从栈中弹出该节点并访问它。</p>
+<p>由于在决定栈顶元素能否被访问时，需要知道该节点的右子树是否遍历完毕，为解决这个问题，需要引入一个布尔型的访问标记变量flag和一个节点指针p。其中，flag用来标记当前栈顶元素是否被访问过，指针p指向当前遍历工程中最后一个被访问的节点。若当前栈顶节点的右孩子节点是空，或者就是p指向的节点，则表明当前节点的右子树已经遍历完毕，此时就可以访问当前栈顶节点。</p>
+<p>相应的算法描述如下：</p>
+<ol>
+<li>创建一个栈对象，根节点入栈，p赋初值为null</li>
+<li>若栈非空，则栈顶节点的非空左孩子相继入栈</li>
+<li>若栈非空，查看栈顶节点，如果栈顶节点的右孩子为空，或者与p相等，则将栈顶节点弹出并访问它，同时使p指向该节点，并将flag赋为true；否则，将栈顶节点的右孩子节点压入栈，并将flag赋为false</li>
+<li>若flag为true，则重复执行步骤3，否则重复执行步骤2，3，直到栈为空</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//后序遍历的非递归实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    <span class="keyword">boolean</span> flag;</div><div class="line">    BinTree p = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span> &amp;&amp; !s.empty())&#123;</div><div class="line">        <span class="keyword">while</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">            <span class="comment">//①沿着左子树一直往下找，将栈顶节点的非空左孩子相继入栈</span></div><div class="line">            s.push(t);</div><div class="line">            t = t.getLeftChild();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">while</span> (!s.empty())&#123;</div><div class="line">            <span class="comment">//判断当前元素是否应该被访问</span></div><div class="line">            t = s.peek();</div><div class="line">            <span class="keyword">if</span> (t.getRightChild() == <span class="keyword">null</span> || t.getRightChild() == p)&#123;</div><div class="line">                System.out.print(t.getData() + <span class="string">" "</span>);</div><div class="line">                flag = <span class="keyword">true</span>;<span class="comment">//标志栈顶元素已经被访问过</span></div><div class="line">                p = s.pop();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                t = t.getRightChild();</div><div class="line">                flag = <span class="keyword">false</span>;<span class="comment">//标记新的栈顶元素没有被访问</span></div><div class="line">            &#125;</div><div class="line">            <span class="comment">//若栈顶元素未被访问过，则重复①的入栈过程</span></div><div class="line">            <span class="keyword">if</span> (flag == <span class="keyword">false</span>)&#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>还有一种思路：要保证根结点在左孩子和右孩子访问之后才能访问，因此对于任一结点P，先将其入栈。如果P不存在左孩子和右孩子，则可以直接访问它；或者P存在左孩子或者右孩子，但是其左孩子和右孩子都已被访问过了，则同样可以直接访问该结点。若非上述两种情况，则<strong>将P的右孩子和左孩子依次入栈</strong>，这样就保证了每次取栈顶元素的时候，<strong>左孩子在右孩子前面被访问，左孩子和右孩子都在根结点前面被访问</strong>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrderTraverseNonRecursion</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    Stack&lt;BinTree&gt; s = <span class="keyword">new</span> Stack&lt;BinTree&gt;();</div><div class="line">    BinTree cur = t;<span class="comment">//当前访问节点</span></div><div class="line">    BinTree pre = <span class="keyword">null</span>;<span class="comment">//前一个访问节点</span></div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        s.push(t);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">while</span> (!s.empty())&#123;</div><div class="line">        cur = s.peek();</div><div class="line">        <span class="comment">//判断是否应该被访问</span></div><div class="line">        <span class="keyword">if</span> (cur.getLeftChild == <span class="keyword">null</span> &amp;&amp; cur.getRightChild == <span class="keyword">null</span> || </div><div class="line">            (pre != <span class="keyword">null</span> &amp;&amp; (pre == cur.getLeftChild || pre == cur.getRightChild())))</div><div class="line">          <span class="comment">//用或的原因是防止根节点只有左孩子或者只有右孩子</span></div><div class="line">        &#123;</div><div class="line">            System.out.print(cur.getData() + <span class="string">" "</span>);</div><div class="line">            pre = s.pop();</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">//将栈顶元素的右孩子，左孩子相继入栈</span></div><div class="line">            <span class="keyword">if</span> (cur.getRightChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                s.push(cur.getRightChild());</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                s.push(cur.getLeftChild());</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="层次遍历的实现为："><a href="#层次遍历的实现为：" class="headerlink" title="层次遍历的实现为："></a>层次遍历的实现为：</h4><p>层次遍历，是先遍历上一层节点，再遍历下一层节点。如果将每一层抽象为一个数据项，则符合先入先出的原则。因此可以用一个队列来存放每一层的节点。</p>
+<p>相应的算法描述为：</p>
+<ol>
+<li>创建一个队列，根节点入队</li>
+<li>若队列非空，则将队首节点出队并访问该节点，再将该节点的非空左孩子，右孩子一次入队</li>
+<li>重复执行步骤2，直至队列为空</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="comment">//层次遍历实现</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">levelTraverse</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    BinTree cur = t;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        Queue&lt;BinTree&gt; q = <span class="keyword">new</span> LinkedList&lt;BinTree&gt;();</div><div class="line">        q.offer(t);<span class="comment">//根节点入队</span></div><div class="line">        <span class="keyword">while</span> (!q.isEmpty)&#123;</div><div class="line">            cur = q.poll();<span class="comment">//队首节点出队</span></div><div class="line">            System.out.print(cur.getData() + <span class="string">" "</span>);<span class="comment">//访问队首节点</span></div><div class="line">            <span class="keyword">if</span> (cur.getLeftChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                q.offer(cur.getLeftChild());</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (cur.getRightChild() != <span class="keyword">null</span>)&#123;</div><div class="line">                q.offer(cur.getRightChild());</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="重建二叉树"><a href="#重建二叉树" class="headerlink" title="重建二叉树"></a>重建二叉树</h3><p>已知一棵二叉树，我们可以写出它的3种遍历，但是已知3种遍历其中之一能够重建一棵树吗？</p>
+<p>答案是否定的！原因可以如下图来解释：</p>
+<ul>
+<li><p>先序遍历序列的组成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">graph LR</div><div class="line">    SVN根((根))--&gt;左子树</div><div class="line">    左子树--&gt;右子树</div></pre></td></tr></table></figure>
+</li>
+<li><p>中序遍历序列的组成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">graph LR</div><div class="line">    左子树--&gt;SVN((根))</div><div class="line">    SVN((根))--&gt;右子树</div></pre></td></tr></table></figure>
+</li>
+<li><p>后序遍历序列的组成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">graph LR</div><div class="line">    左子树--&gt;右子树</div><div class="line">    右子树--&gt;SVN((根))</div></pre></td></tr></table></figure>
+<p>从图中可以看出，先序遍历或者后续能保持的是父节点与孩子节点之间的层次关系，而中序遍历能够保持兄弟节点之间的左右次序关系,所以仅仅根据一种二叉树的遍历结果是不能完全确定一棵树的。这里仅实现已知先序遍历和中序遍历，重建一棵树的方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> BinTree <span class="title">reConstructBinTree</span><span class="params">(<span class="keyword">int</span>[] preOrder,<span class="keyword">int</span>[] inOrder)</span></span>&#123;</div><div class="line">    BinTree binTree = </div><div class="line">      reConstructBinTree(preOrder,<span class="number">0</span>,preOrder.length-<span class="number">1</span>,inOrder,<span class="number">0</span>,inOrder.length-<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> BinTree <span class="title">reConstructBinTree</span><span class="params">(<span class="keyword">int</span>[] preOrder,<span class="keyword">int</span> preStart,<span class="keyword">int</span> preEnd,<span class="keyword">int</span>[] inOrder,<span class="keyword">int</span>[] inOrder,<span class="keyword">int</span> inStart,<span class="keyword">int</span> inEnd)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (preOrder == <span class="keyword">null</span> || inOrder == <span class="keyword">null</span> || preOrder.length == <span class="number">0</span> || inOrder.length == <span class="number">0</span>)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (preStart &lt; <span class="number">0</span> || endStart &lt; <span class="number">0</span> || preStart &gt; preEnd || inStart &gt; inEnd)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    BinTree root = newBinTree(preOrder[preStart]);</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = inStart; i &lt;= inEnd; i++)&#123;</div><div class="line">        <span class="keyword">if</span> (inOrder[i].equals(preOrder[preStart]))&#123;</div><div class="line">            root.setLeftChild = reConstructBinTree(preOrder,preStart+<span class="number">1</span>,preStart+i-preStart,inOrder,inStart,i-<span class="number">1</span>);</div><div class="line">            root.setRightChild = reConstructBinTree(preOrder,preStart+i+<span class="number">1</span>-inStart,preEnd,inOrder,i+<span class="number">1</span>,endIndex);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="求二叉树的深度"><a href="#求二叉树的深度" class="headerlink" title="求二叉树的深度"></a>求二叉树的深度</h3><p>二叉树的深度为左子树深度、右子树深度中的最大值加1。因此我们可以先求出左子树的深度，再求出右子树的深度，然后比较二者的深度大小，取最大值加1；这个过程是可以递归的，因此代码实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getDepth</span><span class="params">(BinTree t)</span></span>&#123;</div><div class="line">    <span class="keyword">if</span> (t != <span class="keyword">null</span>)&#123;</div><div class="line">        <span class="keyword">int</span> leftDepth = getDepth(t.getLeftChild());</div><div class="line">        <span class="keyword">int</span> rightDepth = getDepth(t.getRightChild());</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span> + (leftDepth &gt; rightDepth ? leftDepth : rightDepth);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+                <hr>
+                
+                <!-- 多说 Share start -->
+                <div class="ds-share"
+                     style="text-align: right"
+                     data-thread-key="2017/03/21/二叉树/二叉树/"
+                     data-title="二叉树"
+                     data-url="http://liuguochao.github.io/2017/03/21/二叉树/二叉树/"
+                     data-images=""
+                     data-content="二叉树经常被用于快速查找，快速排序，在现实场景中应用广泛，因此经常会在面试中被问到。今天就系统... | Moore&#39;s blog ">
+                    <div class="ds-share-inline">
+                        <ul class="ds-share-icons-16">
+                            <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                            <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                            <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                            <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                        </ul>
+                        <div class="ds-share-icons-more">
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+                <!-- 多说 Share end-->
+                
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2017/03/26/查找/" data-toggle="tooltip" data-placement="top"
+                           title="查找">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2017/03/20/Java单例模式/" data-toggle="tooltip" data-placement="top"
+                           title="单例模式">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread"
+                         data-thread-key="2017/03/21/二叉树/二叉树/"
+                         data-title="二叉树"
+                         data-url="http://liuguochao.github.io/2017/03/21/二叉树/二叉树/">
+                    </div>
+                </div>
+                <!-- 多说评论框 end -->
+                
+
+                
+
+            </div>
+
+            <div class="hidden-xs col-sm-3 toc-col">
+                <div class="toc-wrap">
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#二叉树的存储"><span class="toc-text">二叉树的存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二叉树的遍历"><span class="toc-text">二叉树的遍历</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#相应的遍历递归实现为："><span class="toc-text">相应的遍历递归实现为：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#相应的遍历非递归实现为："><span class="toc-text">相应的遍历非递归实现为：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#层次遍历的实现为："><span class="toc-text">层次遍历的实现为：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重建二叉树"><span class="toc-text">重建二叉树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#求二叉树的深度"><span class="toc-text">求二叉树的深度</span></a></li></ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5 class="text-center">
+                        <a href="/tags/">FEATURED TAGS</a>
+                    </h5>
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#算法"
+                           title="算法">算法</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <div style="margin-top: 20px;">
+                    <h5 class="text-center">FRIENDS</h5>
+                    <ul class="list-inline text-center">
+                        
+                        <li><a href="http://rosen.xyz/">Roxen</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+</article>
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User by Hux
+    var _user = 'liuguochao';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {short_name: _user};
+    (function () {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+        || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <br>
+                <ul class="list-inline text-center">
+                
+                
+                
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/liu-guo-chao-86">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/liuliuguochao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/liuguochao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Moore 2017
+                    <br>
+                    <span id="busuanzi_container_site_pv" style="font-size: 12px;">PV: <span id="busuanzi_value_site_pv"></span> Times</span>
+                    <br>
+                    Theme by <a href="https://haojen.github.io/">Haojen Ma</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/blog.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://liuguochao.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- swiftype -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','null','2.0.0');
+</script>
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<!--wechat title img-->
+<img class="wechat-title-img" src="null">
+</body>
+
+</html>
